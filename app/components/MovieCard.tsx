@@ -65,7 +65,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               <svg className="mx-auto h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span className="text-xs">Нет изображения</span>
+              <span className="text-xs">No Image</span>
             </div>
           )}
         </div>
@@ -102,7 +102,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                 className="inline-flex items-center text-yellow-600 hover:text-yellow-800 transition-colors text-sm font-medium"
               >
                 <span className="mr-1">🎭</span>
-                Смотреть на IMDb
+                View on IMDb
                 <svg className="ml-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
@@ -115,7 +115,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             <div className="space-y-3 border-t pt-4 mt-4">
               {detail.imdbRating && detail.imdbRating !== 'N/A' && (
                 <div className="flex items-center">
-                  <span className="text-sm font-medium text-gray-700 mr-2">IMDb Рейтинг:</span>
+                  <span className="text-sm font-medium text-gray-700 mr-2">IMDb Rating:</span>
                   <div className="flex items-center">
                     <span className="text-yellow-500 mr-1">⭐</span>
                     <span className="font-semibold text-gray-900">{detail.imdbRating}</span>
@@ -126,7 +126,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               
               {detail.Genre && detail.Genre !== 'N/A' && (
                 <div>
-                  <span className="text-sm font-medium text-gray-700">Жанры:</span>
+                  <span className="text-sm font-medium text-gray-700">Genres:</span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {detail.Genre.split(', ').map((genre) => (
                       <span
@@ -142,7 +142,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               
               {detail.Runtime && detail.Runtime !== 'N/A' && (
                 <div>
-                  <span className="text-sm font-medium text-gray-700">Длительность:</span>
+                  <span className="text-sm font-medium text-gray-700">Runtime:</span>
                   <span className="ml-2 text-sm text-gray-600">{detail.Runtime}</span>
                 </div>
               )}
@@ -152,42 +152,42 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                 <div className="space-y-3 pt-3 border-t">
                   {detail.Director && detail.Director !== 'N/A' && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Режиссер:</span>
+                      <span className="text-sm font-medium text-gray-700">Director:</span>
                       <span className="ml-2 text-sm text-gray-600">{detail.Director}</span>
                     </div>
                   )}
                   
                   {detail.Actors && detail.Actors !== 'N/A' && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Актеры:</span>
+                      <span className="text-sm font-medium text-gray-700">Actors:</span>
                       <span className="ml-2 text-sm text-gray-600">{detail.Actors}</span>
                     </div>
                   )}
                   
                   {detail.Plot && detail.Plot !== 'N/A' && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Описание:</span>
+                      <span className="text-sm font-medium text-gray-700">Plot:</span>
                       <p className="text-sm text-gray-600 mt-1 leading-relaxed">{detail.Plot}</p>
                     </div>
                   )}
                   
                   {detail.Released && detail.Released !== 'N/A' && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Дата выхода:</span>
+                      <span className="text-sm font-medium text-gray-700">Released:</span>
                       <span className="ml-2 text-sm text-gray-600">{detail.Released}</span>
                     </div>
                   )}
                   
                   {detail.Country && detail.Country !== 'N/A' && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Страна:</span>
+                      <span className="text-sm font-medium text-gray-700">Country:</span>
                       <span className="ml-2 text-sm text-gray-600">{detail.Country}</span>
                     </div>
                   )}
                   
                   {detail.Language && detail.Language !== 'N/A' && (
                     <div>
-                      <span className="text-sm font-medium text-gray-700">Язык:</span>
+                      <span className="text-sm font-medium text-gray-700">Language:</span>
                       <span className="ml-2 text-sm text-gray-600">{detail.Language}</span>
                     </div>
                   )}
@@ -203,7 +203,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                 onClick={() => setShowDetails(!showDetails)}
                 className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
               >
-                {showDetails ? 'Скрыть детали' : 'Показать больше деталей'}
+                {showDetails ? 'Hide Details' : 'Show More Details'}
                 <svg
                   className={`ml-1 h-4 w-4 transform transition-transform ${showDetails ? 'rotate-180' : ''}`}
                   fill="none"
