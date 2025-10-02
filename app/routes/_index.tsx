@@ -9,8 +9,8 @@ import Pagination from '~/components/Pagination';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'OMDb Movie Search - Поиск фильмов, сериалов и эпизодов' },
-    { name: 'description', content: 'Поиск и открытие фильмов, сериалов и эпизодов с использованием базы данных OMDb и расширенными возможностями фильтрации.' },
+    { title: 'OMDb Movie Search - Find Movies, Series and Episodes' },
+    { name: 'description', content: 'Search and discover movies, series and episodes using the OMDb database with advanced filtering options.' },
   ];
 };
 
@@ -24,7 +24,7 @@ interface LoaderData {
   isRandomResults?: boolean;
 }
 
-// Популярные запросы для случайной выдачи
+// Popular queries for random results
 const POPULAR_QUERIES = [
   'Marvel', 'Batman', 'Star Wars', 'Disney', 'Action',
   'Comedy', 'Drama', 'Horror', 'Thriller', 'Animation',
@@ -46,7 +46,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let searchQuery = searchParams.s;
     let isRandomResults = false;
 
-    // Если нет поискового запроса, используем случайный популярный запрос
+    // If no search query, use a random popular query
     if (!searchQuery) {
       const randomIndex = Math.floor(Math.random() * POPULAR_QUERIES.length);
       searchQuery = POPULAR_QUERIES[randomIndex];
@@ -59,7 +59,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
 
     if (searchResponse.Response === 'False') {
-      // Если случайный запрос не дал результатов, пробуем другой
+      // If random query didn't return results, try another one
       if (isRandomResults) {
         const fallbackIndex = Math.floor(Math.random() * POPULAR_QUERIES.length);
         const fallbackQuery = POPULAR_QUERIES[fallbackIndex];
@@ -71,7 +71,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         if (fallbackResponse.Response === 'True') {
           const movies = fallbackResponse.Search || [];
           
-          // Загружаем полные детали для всех фильмов
+          // Load full details for all movies
           const movieDetailsPromises = movies.map(movie => 
             getMovieDetail(movie.imdbID)
           );
@@ -105,7 +105,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         totalResults: 0,
         currentPage: parseInt(searchParams.page || '1'),
         searchParams,
-        error: searchResponse.Error || 'Результаты не найдены',
+        error: searchResponse.Error || 'No results found',
         isRandomResults,
       }, {
         headers: {
@@ -118,7 +118,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let movieDetails: Record<string, OMDBMovieDetail> = {};
     let filteredMovies = movies;
 
-    // ВСЕГДА загружаем полные детали для всех фильмов
+    // ALWAYS load full details for all movies
     const movieDetailsPromises = movies.map(movie => 
       getMovieDetail(movie.imdbID)
     );
@@ -130,7 +130,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     });
 
-    // Если применен фильтр по жанру, фильтруем результаты
+    // If genre filter is applied, filter results
     if (searchParams.genre && movies.length > 0) {
       filteredMovies = movies.filter(movie => {
         const detail = movieDetails[movie.imdbID];
@@ -159,7 +159,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       totalResults: 0,
       currentPage: 1,
       searchParams,
-      error: 'Не удалось выполнить поиск фильмов. Попробуйте еще раз.',
+      error: 'Failed to search movies. Please try again.',
     });
   }
 }
@@ -169,7 +169,7 @@ export default function Index() {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Обработка состояния загрузки во время навигации
+  // Handle loading state during navigation
   useEffect(() => {
     setIsLoading(false);
   }, [data]);
@@ -183,10 +183,10 @@ export default function Index() {
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            🎬 Поиск фильмов
+            🎬 Movie Search
           </h1>
           <p className="text-gray-600">
-            Открывайте фильмы, сериалы и эпизоды из базы данных OMDb
+            Discover movies, series and episodes from the OMDb database
           </p>
         </header>
 
@@ -200,14 +200,14 @@ export default function Index() {
           {data.error ? (
             <div className="text-center py-12">
               <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
-                <h3 className="text-lg font-semibold text-red-800 mb-2">Ошибка поиска</h3>
+                <h3 className="text-lg font-semibold text-red-800 mb-2">Search Error</h3>
                 <p className="text-red-600 mb-4">{data.error}</p>
                 <Form method="get" className="inline">
                   <button
                     type="submit"
                     className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
                   >
-                    Попробовать снова
+                    Try Again
                   </button>
                 </Form>
               </div>
@@ -218,8 +218,8 @@ export default function Index() {
                 <svg className="mx-auto h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4h10M7 4l-2 16h14l-2-16" />
                 </svg>
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Результаты не найдены</h3>
-                <p className="text-gray-500">Попробуйте изменить условия поиска или фильтры</p>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">No Results Found</h3>
+                <p className="text-gray-500">Try changing your search terms or filters</p>
               </div>
             </div>
           ) : (
@@ -227,13 +227,13 @@ export default function Index() {
               <div className="mb-6">
                 {data.isRandomResults ? (
                   <p className="text-gray-600">
-                    Показаны популярные фильмы. Используйте поиск выше для поиска конкретных фильмов.
+                    Showing popular movies. Use the search above to find specific movies.
                   </p>
                 ) : (
                   <p className="text-gray-600">
-                    Найдено <span className="font-semibold">{data.totalResults.toLocaleString()}</span> результатов
+                    Found <span className="font-semibold">{data.totalResults.toLocaleString()}</span> results
                     {data.searchParams.s && (
-                      <span> для "<span className="font-semibold">{data.searchParams.s}</span>"</span>
+                      <span> for "<span className="font-semibold">{data.searchParams.s}</span>"</span>
                     )}
                   </p>
                 )}
