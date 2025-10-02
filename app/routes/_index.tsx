@@ -1,7 +1,7 @@
 import { json, type LoaderFunctionArgs, type MetaFunction } from '@remix-run/node';
 import { useLoaderData, useSearchParams, Form } from '@remix-run/react';
 import { useState, useEffect } from 'react';
-import { searchMovies, filterMoviesByGenre } from '~/utils/omdb';
+import { searchMovies, filterMoviesByGenre, getMovieDetail } from '~/utils/omdb';
 import type { OMDBSearchItem, OMDBMovieDetail, SearchParams } from '~/types/omdb';
 import SearchBar from '~/components/SearchBar';
 import MovieCard from '~/components/MovieCard';
@@ -70,9 +70,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
         
         if (fallbackResponse.Response === 'True') {
           const movies = fallbackResponse.Search || [];
+          
+          // Загружаем полные детали для всех фильмов
+          const movieDetailsPromises = movies.map(movie => 
+            getMovieDetail(movie.imdbID)
+          );
+          const detailedMovies = await Promise.all(movieDetailsPromises);
+          
+          const movieDetails: Record<string, OMDBMovieDetail> = {};
+          detailedMovies.forEach((detail, index) => {
+            if (detail) {
+              movieDetails[movies[index].imdbID] = detail;
+            }
+          });
+          
           return json<LoaderData>({
             movies,
-            movieDetails: {},
+            movieDetails,
             totalResults: parseInt(fallbackResponse.totalResults || '0'),
             currentPage: parseInt(searchParams.page || '1'),
             searchParams: { ...searchParams, s: undefined },
@@ -104,20 +118,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let movieDetails: Record<string, OMDBMovieDetail> = {};
     let filteredMovies = movies;
 
-    // Если применен фильтр по жанру, загружаем детали и фильтруем
+    // ВСЕГДА загружаем полные детали для всех фильмов
+    const movieDetailsPromises = movies.map(movie => 
+      getMovieDetail(movie.imdbID)
+    );
+    const detailedMovies = await Promise.all(movieDetailsPromises);
+    
+    detailedMovies.forEach((detail, index) => {
+      if (detail) {
+        movieDetails[movies[index].imdbID] = detail;
+      }
+    });
+
+    // Если применен фильтр по жанру, фильтруем результаты
     if (searchParams.genre && movies.length > 0) {
-      const genreFilteredResults = await filterMoviesByGenre(movies, searchParams.genre);
-      filteredMovies = genreFilteredResults.map(result => ({
-        Title: result.detail.Title,
-        Year: result.detail.Year,
-        imdbID: result.detail.imdbID,
-        Type: result.detail.Type as 'movie' | 'series' | 'episode',
-        Poster: result.detail.Poster,
-      }));
-      
-      // Сохраняем детали для отображения
-      genreFilteredResults.forEach(result => {
-        movieDetails[result.imdbID] = result.detail;
+      filteredMovies = movies.filter(movie => {
+        const detail = movieDetails[movie.imdbID];
+        return detail && detail.Genre && 
+               detail.Genre.toLowerCase().includes(searchParams.genre!.toLowerCase());
       });
     }
 
