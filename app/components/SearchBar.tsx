@@ -9,10 +9,10 @@ interface SearchBarProps {
 }
 
 const MOVIE_TYPES = [
-  { value: '', label: 'Все типы' },
-  { value: 'movie', label: 'Фильмы' },
-  { value: 'series', label: 'Сериалы' },
-  { value: 'episode', label: 'Эпизоды' },
+  { value: '', label: 'All Types' },
+  { value: 'movie', label: 'Movies' },
+  { value: 'series', label: 'Series' },
+  { value: 'episode', label: 'Episodes' },
 ];
 
 const POPULAR_GENRES = [
@@ -59,7 +59,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
         {/* Search Input */}
         <div>
           <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
-            Поиск фильмов, сериалов и эпизодов
+            Search for movies, series and episodes
           </label>
           <div className="relative">
             <input
@@ -68,7 +68,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Введите название фильма..."
+              placeholder="Enter movie title..."
               className="w-full px-4 py-3 pl-10 pr-12 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -94,7 +94,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
           {/* Type Filter */}
           <div>
             <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
-              Тип
+              Type
             </label>
             <select
               id="type"
@@ -113,7 +113,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
           {/* Year Filter */}
           <div>
             <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-2">
-              Год
+              Year
             </label>
             <select
               id="year"
@@ -121,7 +121,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
               defaultValue={defaultValues.y || ''}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             >
-              <option value="">Любой год</option>
+              <option value="">Any Year</option>
               {YEARS.map((year) => (
                 <option key={year} value={year}>
                   {year}
@@ -133,7 +133,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
           {/* Genre Filter */}
           <div>
             <label htmlFor="genre" className="block text-sm font-medium text-gray-700 mb-2">
-              Жанр
+              Genre
             </label>
             <select
               id="genre"
@@ -141,7 +141,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
               defaultValue={defaultValues.genre || ''}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             >
-              <option value="">Любой жанр</option>
+              <option value="">Any Genre</option>
               {POPULAR_GENRES.map((genre) => (
                 <option key={genre} value={genre}>
                   {genre}
@@ -164,10 +164,10 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Поиск...
+                Searching...
               </span>
             ) : (
-              'Найти фильмы'
+              'Find Movies'
             )}
           </button>
         </div>
