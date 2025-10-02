@@ -8,7 +8,7 @@ interface VideoPlayerProps {
 
 export function VideoPlayer({ url, title }: VideoPlayerProps) {
   return (
-    <ClientOnly fallback={<div className="bg-gray-200 h-64 flex items-center justify-center rounded-lg">Загрузка видео...</div>}>
+    <ClientOnly fallback={<div className="bg-gray-200 h-64 flex items-center justify-center rounded-lg">Loading video...</div>}>
       {() => (
         <ReactPlayer
           url={url}
