@@ -55,13 +55,33 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
     return 'text-red-600 dark:text-red-400';
   };
 
+  // Переход на IMDb по клику на карточку, но не мешаем внутренним кнопкам
+  const handleCardClick = () => {
+    window.open(`https://www.imdb.com/title/${movie.imdbID}/`, '_blank', 'noopener,noreferrer');
+  };
+
+  const stopPropagation: React.MouseEventHandler = (e) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="bg-white dark:bg-dark-bg-card rounded-xl shadow-card-light dark:shadow-card-dark overflow-hidden hover:shadow-lg dark:hover:shadow-dark-lg transition-all duration-300 border border-gray-200 dark:border-dark-border group">
+    <div
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleCardClick();
+        }
+      }}
+      className="cursor-pointer bg-white dark:bg-dark-bg-card rounded-xl shadow-card-light dark:shadow-card-dark overflow-hidden hover:shadow-lg dark:hover:shadow-dark-lg transition-all duration-300 border border-gray-200 dark:border-dark-border group focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
       <div className="flex flex-col md:flex-row">
         {/* Poster */}
         <div className="md:w-48 h-72 md:h-auto flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden">
           {getPosterUrl(movie.Poster) ? (
-            <div className="relative w-full h-full group">
+            <div className="relative w-full h-full group" onClick={stopPropagation}>
               <img
                 src={getPosterUrl(movie.Poster)!}
                 alt={`${movie.Title} poster`}
@@ -72,7 +92,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
             </div>
           ) : (
-            <div className="text-gray-400 dark:text-gray-500 text-center p-4">
+            <div className="text-gray-400 dark:text-gray-500 text-center p-4" onClick={stopPropagation}>
               <svg className="mx-auto h-16 w-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -82,7 +102,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6" onClick={stopPropagation}>
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <h3 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
@@ -102,25 +122,12 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             </div>
           </div>
 
-          {/* IMDb Link */}
-          <div className="flex items-center justify-between mb-4">
+          {/* Убрана кнопка/ссылка IMDb */}
+          <div className="flex items-center mb-4">
             <div className="flex items-center text-sm text-gray-500 dark:text-dark-text-tertiary">
               <span className="font-medium">ID:</span>
               <span className="ml-2 font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{movie.imdbID}</span>
             </div>
-            
-            <a
-              href={`https://www.imdb.com/title/${movie.imdbID}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 transition-all duration-200 text-sm font-medium bg-yellow-50 dark:bg-yellow-900/20 px-3 py-1 rounded-lg hover:bg-yellow-100 dark:hover:bg-yellow-900/30 group/link"
-            >
-              <span className="mr-1">🎭</span>
-              View on IMDb
-              <svg className="ml-1 h-3 w-3 group-hover/link:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
           </div>
 
           {/* Movie Details */}
@@ -232,7 +239,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
 
           {/* Show/Hide Details Button */}
           {detail && (
-            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border">
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border" onClick={stopPropagation}>
               <button
                 onClick={() => setShowDetails(!showDetails)}
                 className="inline-flex items-center px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 group/btn"
