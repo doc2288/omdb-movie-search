@@ -87,7 +87,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
   };
 
   return (
-    <article className="bg-white dark:bg-dark-bg-card rounded-xl shadow-card-light dark:shadow-card-dark overflow-hidden hover:shadow-lg dark:hover:shadow-dark-lg transition-all duration-300 border border-gray-200 dark:border-dark-border group">
+    <article className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-gray-900/50 transition-all duration-300 border border-gray-200 dark:border-gray-700 group">
       <div className="flex flex-col md:flex-row">
         {/* Poster */}
         <div 
@@ -134,7 +134,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                 className="text-left w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg p-1 -m-1"
                 aria-label={`View ${movie.Title} on IMDb`}
               >
-                <h3 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 hover:text-blue-600 dark:hover:text-blue-400">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 hover:text-blue-600 dark:hover:text-blue-400">
                   {movie.Title}
                 </h3>
               </button>
@@ -142,7 +142,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(movie.Type)} border border-current border-opacity-20`}>
                   {getTypeIcon(movie.Type)} {movie.Type.charAt(0).toUpperCase() + movie.Type.slice(1)}
                 </span>
-                <div className="flex items-center text-gray-600 dark:text-dark-text-secondary">
+                <div className="flex items-center text-gray-600 dark:text-gray-300">
                   <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -154,9 +154,9 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
 
           {/* Metadata */}
           <div className="flex flex-wrap items-center gap-4 mb-4">
-            <div className="flex items-center text-sm text-gray-500 dark:text-dark-text-tertiary">
+            <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
               <span className="font-medium">ID:</span>
-              <span className="ml-2 font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{movie.imdbID}</span>
+              <span className="ml-2 font-mono text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{movie.imdbID}</span>
             </div>
 
             {movie.Type === 'series' && (
@@ -191,14 +191,14 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
 
           {/* Movie Details */}
           {detail && (
-            <div className="space-y-4 border-t border-gray-200 dark:border-dark-border pt-4">
+            <div className="space-y-4 border-t border-gray-200 dark:border-gray-600 pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {detail.imdbRating && detail.imdbRating !== 'N/A' && (
-                  <div className="flex items-center bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg">
+                  <div className="flex items-center bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                     <div className="flex items-center">
                       <span className="text-xl mr-2">⭐</span>
                       <div>
-                        <div className="text-xs font-medium text-gray-500 dark:text-dark-text-tertiary">IMDb Rating</div>
+                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400">IMDb Rating</div>
                         <div className={`font-bold text-lg ${getRatingColor(detail.imdbRating)}`}>
                           {detail.imdbRating}<span className="text-sm font-normal">/10</span>
                         </div>
@@ -207,12 +207,12 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                   </div>
                 )}
                 {detail.Runtime && detail.Runtime !== 'N/A' && (
-                  <div className="flex items-center bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg">
+                  <div className="flex items-center bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                     <div className="flex items-center">
                       <span className="text-xl mr-2">⏰</span>
                       <div>
-                        <div className="text-xs font-medium text-gray-500 dark:text-dark-text-tertiary">Runtime</div>
-                        <div className="font-semibold text-gray-900 dark:text-dark-text-primary">{detail.Runtime}</div>
+                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Runtime</div>
+                        <div className="font-semibold text-gray-900 dark:text-white">{detail.Runtime}</div>
                       </div>
                     </div>
                   </div>
@@ -221,7 +221,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
 
               {detail.Genre && detail.Genre !== 'N/A' && (
                 <div>
-                  <div className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2 flex items-center">
+                  <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
                     <span className="mr-1">🎭</span>Genres
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -238,29 +238,29 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               )}
 
               {showDetails && (
-                <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-dark-border animate-slide-up">
+                <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-600 animate-slide-up">
                   {detail.Director && detail.Director !== 'N/A' && (
                     <div className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-4 rounded-lg">
-                      <span className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary flex items-center mb-1">
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mb-1">
                         <span className="mr-1">🎬</span> Director
                       </span>
-                      <span className="text-gray-900 dark:text-dark-text-primary font-medium">{detail.Director}</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{detail.Director}</span>
                     </div>
                   )}
                   {detail.Actors && detail.Actors !== 'N/A' && (
                     <div className="bg-gradient-to-r from-gray-50 to-purple-50 dark:from-gray-800 dark:to-purple-900/20 p-4 rounded-lg">
-                      <span className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary flex items-center mb-1">
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mb-1">
                         <span className="mr-1">🎭</span> Cast
                       </span>
-                      <span className="text-gray-900 dark:text-dark-text-primary">{detail.Actors}</span>
+                      <span className="text-gray-900 dark:text-white">{detail.Actors}</span>
                     </div>
                   )}
                   {detail.Plot && detail.Plot !== 'N/A' && (
                     <div className="bg-gradient-to-r from-gray-50 to-green-50 dark:from-gray-800 dark:to-green-900/20 p-4 rounded-lg">
-                      <span className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary flex items-center mb-2">
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mb-2">
                         <span className="mr-1">📖</span> Plot
                       </span>
-                      <p className="text-gray-900 dark:text-dark-text-primary leading-relaxed">{detail.Plot}</p>
+                      <p className="text-gray-900 dark:text-white leading-relaxed">{detail.Plot}</p>
                     </div>
                   )}
                 </div>
@@ -269,7 +269,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
           )}
 
           {detail && (
-            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border">
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
               <button 
                 type="button" 
                 onClick={toggleDetails}
