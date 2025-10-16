@@ -55,12 +55,14 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
     return 'text-red-600 dark:text-red-400';
   };
 
-  // Переход на IMDb по клику на карточку, но не мешаем внутренним кнопкам
+  // Открытие IMDb по клику на всю карточку
   const handleCardClick = () => {
     window.open(`https://www.imdb.com/title/${movie.imdbID}/`, '_blank', 'noopener,noreferrer');
   };
 
-  const stopPropagation: React.MouseEventHandler = (e) => {
+  // НЕ останавливаем клик на всем контенте, чтобы вся карточка была кликабельной
+  // ОСТАНАВЛИВАЕМ клик только на кнопках/контролах внутри
+  const stopPropagationOnControls: React.MouseEventHandler = (e) => {
     e.stopPropagation();
   };
 
@@ -81,7 +83,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
         {/* Poster */}
         <div className="md:w-48 h-72 md:h-auto flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden">
           {getPosterUrl(movie.Poster) ? (
-            <div className="relative w-full h-full group" onClick={stopPropagation}>
+            <div className="relative w-full h-full group">
               <img
                 src={getPosterUrl(movie.Poster)!}
                 alt={`${movie.Title} poster`}
@@ -92,7 +94,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
             </div>
           ) : (
-            <div className="text-gray-400 dark:text-gray-500 text-center p-4" onClick={stopPropagation}>
+            <div className="text-gray-400 dark:text-gray-500 text-center p-4">
               <svg className="mx-auto h-16 w-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -101,8 +103,8 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
           )}
         </div>
 
-        {/* Content */}
-        <div className="flex-1 p-6" onClick={stopPropagation}>
+        {/* Content (НЕ ставим onClick stopPropagation на весь блок) */}
+        <div className="flex-1 p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <h3 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
@@ -122,7 +124,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             </div>
           </div>
 
-          {/* Убрана кнопка/ссылка IMDb */}
+          {/* ID */}
           <div className="flex items-center mb-4">
             <div className="flex items-center text-sm text-gray-500 dark:text-dark-text-tertiary">
               <span className="font-medium">ID:</span>
@@ -180,7 +182,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                 </div>
               )}
               
-              {/* Expandable Details */}
+              {/* Expandable Details (останавливаем только на контролах) */}
               {showDetails && (
                 <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-dark-border animate-slide-up">
                   {detail.Director && detail.Director !== 'N/A' && (
@@ -237,11 +239,17 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             </div>
           )}
 
-          {/* Show/Hide Details Button */}
+          {/* Show/Hide Details Button (останавливаем только на кнопке) */}
           {detail && (
-            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border" onClick={stopPropagation}>
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border">
               <button
-                onClick={() => setShowDetails(!showDetails)}
+                onClick={stopPropagationOnControls}
+                className="sr-only"
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowDetails(!showDetails); }}
                 className="inline-flex items-center px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 group/btn"
               >
                 {showDetails ? 'Hide Details' : 'Show More Details'}
