@@ -7,6 +7,8 @@ interface MovieCardProps {
   detail?: OMDBMovieDetail;
 }
 
+const openImdb = (id: string) => window.open(`https://www.imdb.com/title/${id}/`, '_blank', 'noopener,noreferrer');
+
 export default function MovieCard({ movie, detail }: MovieCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -48,29 +50,13 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
     return 'text-red-600 dark:text-red-400';
   };
 
-  const handleCardClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    // Если клик пришел из области, помеченной как no-imdb-click, игнорируем переход
-    const target = e.target as HTMLElement;
-    if (target && target.closest('[data-no-imdb-click="true"]')) return;
-    window.open(`https://www.imdb.com/title/${movie.imdbID}/`, '_blank', 'noopener,noreferrer');
-  };
-
   return (
     <div
-      onClick={handleCardClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          window.open(`https://www.imdb.com/title/${movie.imdbID}/`, '_blank', 'noopener,noreferrer');
-        }
-      }}
-      className="cursor-pointer bg-white dark:bg-dark-bg-card rounded-xl shadow-card-light dark:shadow-card-dark overflow-hidden hover:shadow-lg dark:hover:shadow-dark-lg transition-all duration-300 border border-gray-200 dark:border-dark-border group focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="bg-white dark:bg-dark-bg-card rounded-xl shadow-card-light dark:shadow-card-dark overflow-hidden hover:shadow-lg dark:hover:shadow-dark-lg transition-all duration-300 border border-gray-200 dark:border-dark-border group"
     >
       <div className="flex flex-col md:flex-row">
-        {/* Poster */}
-        <div className="md:w-48 h-72 md:h-auto flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden">
+        {/* Poster (кликабелен) */}
+        <div className="md:w-48 h-72 md:h-auto flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden" onClick={() => openImdb(movie.imdbID)} role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); openImdb(movie.imdbID);} }}>
           {getPosterUrl(movie.Poster) ? (
             <div className="relative w-full h-full group">
               <img src={getPosterUrl(movie.Poster)!} alt={`${movie.Title} poster`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onError={handleImageError} loading="lazy" />
@@ -86,13 +72,17 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
           )}
         </div>
 
-        {/* Content */}
+        {/* Content (кликабелен по заголовку и пустым местам верхнего блока) */}
         <div className="flex-1 p-6">
           <div className="flex items-start justify-between mb-4">
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">{movie.Title}</h3>
+            <div className="flex-1" onClick={() => openImdb(movie.imdbID)} role="button" tabIndex={0} onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault(); openImdb(movie.imdbID);} }}>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-dark-text-primary mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                {movie.Title}
+              </h3>
               <div className="flex items-center gap-3 mb-4">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(movie.Type)} border border-current border-opacity-20`}>{getTypeIcon(movie.Type)} {movie.Type.charAt(0).toUpperCase() + movie.Type.slice(1)}</span>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(movie.Type)} border border-current border-opacity-20`}>
+                  {getTypeIcon(movie.Type)} {movie.Type.charAt(0).toUpperCase() + movie.Type.slice(1)}
+                </span>
                 <div className="flex items-center text-gray-600 dark:text-dark-text-secondary">
                   <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                   <span className="font-semibold">{movie.Year}</span>
@@ -101,7 +91,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             </div>
           </div>
 
-          {/* ID + Series meta */}
+          {/* ID + Series meta (не кликабельно) */}
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <div className="flex items-center text-sm text-gray-500 dark:text-dark-text-tertiary">
               <span className="font-medium">ID:</span>
@@ -109,7 +99,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             </div>
 
             {movie.Type === 'series' && (
-              <div className="flex items-center gap-2" data-no-imdb-click="true">
+              <>
                 {detail?.totalSeasons && detail.totalSeasons !== 'N/A' && (
                   <div className="inline-flex items-center text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/40 px-2.5 py-1 rounded-full">
                     <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" /></svg>
@@ -122,13 +112,13 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                     Episodes: {episodesCount}
                   </div>
                 )}
-              </div>
+              </>
             )}
           </div>
 
-          {/* Movie Details */}
+          {/* Movie Details (интерактив, не кликабельно на IMDb) */}
           {detail && (
-            <div className="space-y-4 border-t border-gray-200 dark:border-dark-border pt-4" data-no-imdb-click="true" onClickCapture={(e)=>e.stopPropagation()}>
+            <div className="space-y-4 border-t border-gray-200 dark:border-dark-border pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {detail.imdbRating && detail.imdbRating !== 'N/A' && (
                   <div className="flex items-center bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg">
@@ -185,30 +175,14 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                       <p className="text-gray-900 dark:text-dark-text-primary leading-relaxed">{detail.Plot}</p>
                     </div>
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {detail.Released && detail.Released !== 'N/A' && (
-                      <div className="bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg"><span className="text-xs font-medium text-gray-500 dark:text-dark-text-tertiary block mb-1">Released</span><span className="text-gray-900 dark:text-dark-text-primary font-medium">{detail.Released}</span></div>
-                    )}
-                    {detail.Country && detail.Country !== 'N/A' && (
-                      <div className="bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg"><span className="text-xs font-medium text-gray-500 dark:text-dark-text-tertiary block mb-1">Country</span><span className="text-gray-900 dark:text-dark-text-primary font-medium">{detail.Country}</span></div>
-                    )}
-                    {detail.Language && detail.Language !== 'N/A' && (
-                      <div className="bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg"><span className="text-xs font-medium text-gray-500 dark:text-dark-text-tertiary block mb-1">Language</span><span className="text-gray-900 dark:text-dark-text-primary font-medium">{detail.Language}</span></div>
-                    )}
-                  </div>
                 </div>
               )}
             </div>
           )}
 
           {detail && (
-            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border" data-no-imdb-click="true" onClickCapture={(e)=>e.stopPropagation()}>
-              <button
-                type="button"
-                role="button"
-                onClick={(e) => { e.stopPropagation(); setShowDetails(!showDetails); }}
-                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 group/btn"
-              >
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border">
+              <button type="button" onClick={() => setShowDetails(!showDetails)} className="inline-flex items-center px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 group/btn">
                 {showDetails ? 'Hide Details' : 'Show More Details'}
                 <svg className={`ml-2 h-4 w-4 transform transition-all duration-300 group-hover/btn:translate-x-0.5 ${showDetails ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </button>
