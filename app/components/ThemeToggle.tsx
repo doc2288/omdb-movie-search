@@ -8,7 +8,7 @@ const ThemeToggle = () => {
       onClick={toggleTheme}
       className="
         relative inline-flex items-center justify-center
-        w-12 h-6 rounded-full transition-all duration-300 ease-in-out
+        h-8 w-14 md:h-9 md:w-16 rounded-full transition-all duration-300 ease-in-out
         bg-gray-300 dark:bg-gray-600
         hover:bg-gray-400 dark:hover:bg-gray-500
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
@@ -16,21 +16,26 @@ const ThemeToggle = () => {
       "
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
-      {/* Toggle circle */}
+      {/* Track */}
+      <span className="sr-only">Toggle theme</span>
+
+      {/* Knob */}
       <div
         className={`
-          absolute w-5 h-5 rounded-full transition-all duration-300 ease-in-out
+          absolute rounded-full transition-all duration-300 ease-in-out
           bg-white shadow-md transform flex items-center justify-center
-          ${theme === 'dark' ? 'translate-x-6' : 'translate-x-0.5'}
+          ${theme === 'dark' ? 'translate-x-6 md:translate-x-7' : 'translate-x-0.5'}
+          h-6 w-6 md:h-7 md:w-7
         `}
       >
         {/* Sun icon for light mode */}
         <svg
-          className={`w-3 h-3 transition-opacity duration-300 ${
+          className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-opacity duration-300 ${
             theme === 'light' ? 'opacity-100' : 'opacity-0'
           }`}
           fill="currentColor"
           viewBox="0 0 20 20"
+          aria-hidden="true"
         >
           <path
             fillRule="evenodd"
@@ -41,11 +46,12 @@ const ThemeToggle = () => {
         
         {/* Moon icon for dark mode */}
         <svg
-          className={`w-3 h-3 transition-opacity duration-300 absolute ${
+          className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-opacity duration-300 absolute ${
             theme === 'dark' ? 'opacity-100' : 'opacity-0'
           }`}
           fill="currentColor"
           viewBox="0 0 20 20"
+          aria-hidden="true"
         >
           <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
         </svg>
