@@ -61,17 +61,17 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
   }
 
   return (
-    <div className="bg-white dark:bg-dark-bg-card border border-gray-200 dark:border-dark-border rounded-xl shadow-card-light dark:shadow-card-dark p-6 transition-colors duration-300">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg dark:shadow-2xl p-6 transition-colors duration-300">
       {/* Mobile pagination */}
       <div className="flex justify-between items-center sm:hidden">
-        <div className="text-sm text-gray-600 dark:text-dark-text-secondary">
+        <div className="text-sm text-gray-600 dark:text-gray-300">
           Page {currentPage} of {totalPages}
         </div>
         <div className="flex space-x-2">
           {hasPrevPage ? (
             <a
               href={createPageUrl(currentPage - 1)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-dark-text-secondary bg-white dark:bg-dark-bg-secondary border border-gray-300 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors group"
             >
               <svg className="w-4 h-4 mr-1 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -90,7 +90,7 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
           {hasNextPage ? (
             <a
               href={createPageUrl(currentPage + 1)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-dark-text-secondary bg-white dark:bg-dark-bg-secondary border border-gray-300 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors group"
             >
               Next
               <svg className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,12 +111,12 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
       {/* Desktop pagination */}
       <div className="hidden sm:flex sm:items-center sm:justify-between">
         <div className="flex items-center space-x-4">
-          <div className="flex items-center text-sm text-gray-700 dark:text-dark-text-secondary">
+          <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
             <span className="mr-1">📄</span>
             Showing page <span className="font-semibold text-blue-600 dark:text-blue-400 mx-1">{currentPage}</span> of{' '}
             <span className="font-semibold text-purple-600 dark:text-purple-400 mx-1">{totalPages}</span> pages
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+          <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
             {totalResults.toLocaleString()} results
           </div>
         </div>
@@ -126,7 +126,7 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
           {hasPrevPage ? (
             <a
               href={createPageUrl(currentPage - 1)}
-              className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-dark-bg-secondary border border-gray-300 dark:border-dark-border rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 group"
+              className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-l-lg hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 group"
             >
               <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -149,7 +149,7 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
                 return (
                   <span
                     key={`dots-${index}`}
-                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-dark-bg-secondary border-t border-b border-gray-300 dark:border-dark-border"
+                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border-t border-b border-gray-300 dark:border-gray-600"
                   >
                     •••
                   </span>
@@ -163,10 +163,11 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
                 <a
                   key={page}
                   href={createPageUrl(page)}
-                  className={`inline-flex items-center px-4 py-2 text-sm font-medium border-t border-b transition-all duration-200 ${isActive
+                  className={`inline-flex items-center px-4 py-2 text-sm font-medium border-t border-b transition-all duration-200 ${
+                    isActive
                       ? 'z-10 bg-gradient-to-r from-blue-600 to-purple-600 border-blue-600 text-white shadow-md transform scale-105'
-                      : 'bg-white dark:bg-dark-bg-secondary border-gray-300 dark:border-dark-border text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-600'
-                    }`}
+                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500'
+                  }`}
                   aria-current={isActive ? 'page' : undefined}
                 >
                   {page}
@@ -179,7 +180,7 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
           {hasNextPage ? (
             <a
               href={createPageUrl(currentPage + 1)}
-              className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-dark-bg-secondary border border-gray-300 dark:border-dark-border rounded-r-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 group"
+              className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-r-lg hover:bg-gray-50 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-gray-200 transition-all duration-200 group"
             >
               <span className="mr-1 hidden md:block">Next</span>
               <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
