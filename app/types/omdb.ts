@@ -36,7 +36,9 @@ export interface OMDBMovieDetail {
   imdbRating: string;
   imdbVotes: string;
   imdbID: string;
-  Type: string;
+  Type: 'movie' | 'series' | 'episode';
+  totalSeasons?: string; // present for series in OMDb
+  totalEpisodes?: string; // keep optional for potential extensions
   DVD: string;
   BoxOffice: string;
   Production: string;
