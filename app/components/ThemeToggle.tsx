@@ -3,6 +3,9 @@ import { useTheme } from '~/contexts/ThemeContext';
 const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
 
+  // Track/knob sizes (поддержка четкой вертикали без смещения)
+  // Высота трека = 32px (h-8), внутренний отступ сверху/снизу у knob = 3px, чтобы он по центру
+  // Для md: высота 36px (h-9), отступ сверху = 3px тоже даёт центрирование
   const trackH = 'h-8 md:h-9';
   const trackW = 'w-14 md:w-16';
   const knobSize = 'h-6 w-6 md:h-7 md:w-7';
@@ -23,15 +26,16 @@ const ThemeToggle = () => {
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
       <span className="sr-only">Toggle theme</span>
+
+      {/* Центрируем knob по вертикали через translate-y-1/2, а не фиксированный top */}
       <div
         className={[
-          'absolute top-1 md:top-1.5',
+          'absolute left-[2px]',
+          'top-1/2 -translate-y-1/2',
           knobSize,
           'rounded-full bg-white shadow-md',
           'transition-all duration-200 ease-out',
-          theme === 'dark'
-            ? 'left-[calc(100%-2px)] -translate-x-full'
-            : 'left-[2px]',
+          theme === 'dark' ? 'left-[calc(100%-2px)] -translate-x-full' : 'translate-x-0',
           'flex items-center justify-center',
         ].join(' ')}
       >
