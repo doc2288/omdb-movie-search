@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import type { OMDBSearchItem, OMDBMovieDetail } from '~/types/omdb';
 import { getTotalEpisodes } from '~/utils/episodes';
 
@@ -11,20 +11,20 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [episodesCount, setEpisodesCount] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     async function loadEpisodes() {
       if (movie.Type === 'series') {
-        setIsLoading(true);
+        setIsLoadingEpisodes(true);
         try {
           const total = await getTotalEpisodes(movie.imdbID, detail?.totalSeasons);
           if (mounted) setEpisodesCount(total);
         } catch (error) {
           console.warn('Failed to load episodes count:', error);
         } finally {
-          if (mounted) setIsLoading(false);
+          if (mounted) setIsLoadingEpisodes(false);
         }
       }
     }
@@ -32,25 +32,25 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
     return () => { mounted = false; };
   }, [movie.imdbID, movie.Type, detail?.totalSeasons]);
 
-  const handleImageError = useCallback(() => {
+  const handleImageError = () => {
     setImageError(true);
-  }, []);
+  };
 
-  const openImdb = useCallback((e?: React.MouseEvent | React.KeyboardEvent) => {
+  const openImdb = (e?: React.MouseEvent | React.KeyboardEvent) => {
     e?.preventDefault();
     e?.stopPropagation();
     window.open(`https://www.imdb.com/title/${movie.imdbID}/`, '_blank', 'noopener,noreferrer');
-  }, [movie.imdbID]);
+  };
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       openImdb(e);
     }
-  }, [openImdb]);
+  };
 
-  const toggleDetails = useCallback(() => {
+  const toggleDetails = () => {
     setShowDetails(prev => !prev);
-  }, []);
+  };
 
   const getPosterUrl = (posterUrl: string) => {
     return posterUrl === 'N/A' || imageError ? null : posterUrl;
@@ -87,11 +87,11 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
   };
 
   return (
-    <article className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-gray-900/50 transition-all duration-300 border border-gray-200 dark:border-gray-700 group">
+    <article className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700">
       <div className="flex flex-col md:flex-row">
         {/* Poster */}
         <div 
-          className="md:w-48 h-72 md:h-auto flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-tl-xl md:rounded-l-xl md:rounded-tr-none" 
+          className="md:w-48 h-72 md:h-auto flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
           onClick={openImdb}
           onKeyDown={handleKeyDown}
           role="button" 
@@ -103,16 +103,11 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               <img 
                 src={getPosterUrl(movie.Poster)!} 
                 alt={`${movie.Title} poster`} 
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                 onError={handleImageError} 
                 loading="lazy" 
               />
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
-              <div className="absolute bottom-2 right-2 bg-black/50 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
             </div>
           ) : (
             <div className="text-gray-400 dark:text-gray-500 text-center p-4">
@@ -126,33 +121,33 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
 
         {/* Content */}
         <div className="flex-1 p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex-1">
-              <button
-                type="button"
-                onClick={openImdb}
-                className="text-left w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg p-1 -m-1"
-                aria-label={`View ${movie.Title} on IMDb`}
-              >
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 hover:text-blue-600 dark:hover:text-blue-400">
-                  {movie.Title}
-                </h3>
-              </button>
-              <div className="flex items-center gap-3 mb-4">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(movie.Type)} border border-current border-opacity-20`}>
-                  {getTypeIcon(movie.Type)} {movie.Type.charAt(0).toUpperCase() + movie.Type.slice(1)}
-                </span>
-                <div className="flex items-center text-gray-600 dark:text-gray-300">
-                  <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="font-semibold">{movie.Year}</span>
-                </div>
+          {/* Title and basic info */}
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={openImdb}
+              className="text-left w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg p-1 -m-1 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              aria-label={`View ${movie.Title} on IMDb`}
+            >
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                {movie.Title}
+              </h3>
+            </button>
+            
+            <div className="flex items-center gap-3 mb-4">
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(movie.Type)}`}>
+                {getTypeIcon(movie.Type)} {movie.Type.charAt(0).toUpperCase() + movie.Type.slice(1)}
+              </span>
+              <div className="flex items-center text-gray-600 dark:text-gray-300">
+                <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="font-semibold">{movie.Year}</span>
               </div>
             </div>
           </div>
 
-          {/* Metadata */}
+          {/* Basic movie info */}
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
               <span className="font-medium">ID:</span>
@@ -162,23 +157,24 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             {movie.Type === 'series' && (
               <>
                 {detail?.totalSeasons && detail.totalSeasons !== 'N/A' && (
-                  <div className="inline-flex items-center text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/40 px-2.5 py-1 rounded-full">
+                  <div className="inline-flex items-center text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/20 px-2.5 py-1 rounded-full">
                     <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
                     </svg>
                     Seasons: {detail.totalSeasons}
                   </div>
                 )}
-                {isLoading ? (
+                {isLoadingEpisodes && (
                   <div className="inline-flex items-center text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-2.5 py-1 rounded-full">
                     <svg className="animate-spin w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    Loading episodes...
+                    Loading...
                   </div>
-                ) : episodesCount !== null && (
-                  <div className="inline-flex items-center text-sm font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 px-2.5 py-1 rounded-full">
+                )}
+                {episodesCount !== null && !isLoadingEpisodes && (
+                  <div className="inline-flex items-center text-sm font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-1 rounded-full">
                     <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
                     </svg>
@@ -195,25 +191,21 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {detail.imdbRating && detail.imdbRating !== 'N/A' && (
                   <div className="flex items-center bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                    <div className="flex items-center">
-                      <span className="text-xl mr-2">⭐</span>
-                      <div>
-                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400">IMDb Rating</div>
-                        <div className={`font-bold text-lg ${getRatingColor(detail.imdbRating)}`}>
-                          {detail.imdbRating}<span className="text-sm font-normal">/10</span>
-                        </div>
+                    <span className="text-xl mr-2">⭐</span>
+                    <div>
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400">IMDb Rating</div>
+                      <div className={`font-bold text-lg ${getRatingColor(detail.imdbRating)}`}>
+                        {detail.imdbRating}<span className="text-sm font-normal">/10</span>
                       </div>
                     </div>
                   </div>
                 )}
                 {detail.Runtime && detail.Runtime !== 'N/A' && (
                   <div className="flex items-center bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                    <div className="flex items-center">
-                      <span className="text-xl mr-2">⏰</span>
-                      <div>
-                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Runtime</div>
-                        <div className="font-semibold text-gray-900 dark:text-white">{detail.Runtime}</div>
-                      </div>
+                    <span className="text-xl mr-2">⏰</span>
+                    <div>
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Runtime</div>
+                      <div className="font-semibold text-gray-900 dark:text-white">{detail.Runtime}</div>
                     </div>
                   </div>
                 )}
@@ -228,7 +220,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                     {detail.Genre.split(', ').map((genre) => (
                       <span 
                         key={genre} 
-                        className="inline-block bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium border border-blue-200 dark:border-blue-800/50"
+                        className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-medium"
                       >
                         {genre}
                       </span>
@@ -238,28 +230,28 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               )}
 
               {showDetails && (
-                <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-600 animate-slide-up">
+                <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                   {detail.Director && detail.Director !== 'N/A' && (
-                    <div className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-4 rounded-lg">
-                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mb-1">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                      <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mb-1">
                         <span className="mr-1">🎬</span> Director
-                      </span>
-                      <span className="text-gray-900 dark:text-white font-medium">{detail.Director}</span>
+                      </div>
+                      <div className="text-gray-900 dark:text-white font-medium">{detail.Director}</div>
                     </div>
                   )}
                   {detail.Actors && detail.Actors !== 'N/A' && (
-                    <div className="bg-gradient-to-r from-gray-50 to-purple-50 dark:from-gray-800 dark:to-purple-900/20 p-4 rounded-lg">
-                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mb-1">
+                    <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                      <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mb-1">
                         <span className="mr-1">🎭</span> Cast
-                      </span>
-                      <span className="text-gray-900 dark:text-white">{detail.Actors}</span>
+                      </div>
+                      <div className="text-gray-900 dark:text-white">{detail.Actors}</div>
                     </div>
                   )}
                   {detail.Plot && detail.Plot !== 'N/A' && (
-                    <div className="bg-gradient-to-r from-gray-50 to-green-50 dark:from-gray-800 dark:to-green-900/20 p-4 rounded-lg">
-                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mb-2">
+                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                      <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center mb-2">
                         <span className="mr-1">📖</span> Plot
-                      </span>
+                      </div>
                       <p className="text-gray-900 dark:text-white leading-relaxed">{detail.Plot}</p>
                     </div>
                   )}
@@ -268,24 +260,23 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             </div>
           )}
 
+          {/* Show Details Button */}
           {detail && (
             <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
               <button 
                 type="button" 
                 onClick={toggleDetails}
-                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 group/btn focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:scale-95"
+                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 aria-expanded={showDetails}
-                aria-controls={`details-${movie.imdbID}`}
               >
-                {showDetails ? 'Hide Details' : 'Show More Details'}
+                <span>{showDetails ? 'Hide Details' : 'Show More Details'}</span>
                 <svg 
-                  className={`ml-2 h-4 w-4 transform transition-all duration-300 group-hover/btn:translate-x-0.5 ${
+                  className={`ml-2 h-4 w-4 transform transition-transform duration-200 ${
                     showDetails ? 'rotate-180' : ''
                   }`} 
                   fill="none" 
                   viewBox="0 0 24 24" 
                   stroke="currentColor"
-                  aria-hidden="true"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
