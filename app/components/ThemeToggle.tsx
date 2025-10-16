@@ -1,54 +1,30 @@
 import { useTheme } from '~/contexts/ThemeContext';
 
 const ThemeToggle = () => {
-  const { theme, toggleTheme, isHydrated } = useTheme();
-
-  // Don't render until hydrated to prevent flash
-  if (!isHydrated) {
-    return (
-      <div className="w-14 md:w-16 h-8 md:h-9 bg-gray-300 rounded-full animate-pulse" />
-    );
-  }
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <button
       onClick={toggleTheme}
       type="button"
-      className={[
-        'relative inline-flex items-center justify-center',
-        'h-8 md:h-9 w-14 md:w-16 rounded-full',
-        'bg-gray-300 dark:bg-gray-600',
-        'transition-all duration-200 ease-out',
-        'focus:outline-none focus:ring-2 focus:ring-blue-500',
-        'ring-offset-2 dark:ring-offset-gray-900 ring-offset-white',
-        'hover:bg-gray-400 dark:hover:bg-gray-500',
-        'active:scale-95',
-      ].join(' ')}
-      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-      aria-pressed={theme === 'dark'}
+      className="relative inline-flex h-8 w-14 md:h-9 md:w-16 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-gray-300 dark:bg-gray-600 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:bg-gray-400 dark:hover:bg-gray-500"
+      role="switch"
+      aria-checked={theme === 'dark'}
+      aria-label={`Переключить на ${theme === 'light' ? 'темную' : 'светлую'} тему`}
     >
-      <span className="sr-only">Toggle theme</span>
-
+      <span className="sr-only">Переключить тему</span>
+      
       {/* Toggle knob */}
       <div
-        className={[
-          'absolute left-[2px]',
-          'top-1/2 -translate-y-1/2',
-          'h-6 w-6 md:h-7 md:w-7',
-          'rounded-full bg-white shadow-md',
-          'transition-all duration-200 ease-out',
-          theme === 'dark' ? 'left-[calc(100%-2px)] -translate-x-full' : 'translate-x-0',
-          'flex items-center justify-center',
-        ].join(' ')}
+        className={`pointer-events-none inline-block h-5 w-5 md:h-6 md:w-6 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${
+          theme === 'dark' ? 'translate-x-7 md:translate-x-8' : 'translate-x-0'
+        } flex items-center justify-center`}
       >
         {/* Sun icon */}
         <svg
-          className={[
-            'absolute transition-all duration-200',
-            theme === 'light' ? 'opacity-100 scale-100' : 'opacity-0 scale-75',
-            'h-[14px] w-[14px] md:h-[16px] md:w-[16px]',
-            'text-yellow-500',
-          ].join(' ')}
+          className={`h-3 w-3 md:h-4 md:w-4 text-yellow-500 transition-opacity duration-200 ${
+            theme === 'light' ? 'opacity-100' : 'opacity-0'
+          }`}
           fill="currentColor"
           viewBox="0 0 20 20"
           aria-hidden="true"
@@ -62,12 +38,9 @@ const ThemeToggle = () => {
         
         {/* Moon icon */}
         <svg
-          className={[
-            'absolute transition-all duration-200',
-            theme === 'dark' ? 'opacity-100 scale-100' : 'opacity-0 scale-75',
-            'h-[14px] w-[14px] md:h-[16px] md:w-[16px]',
-            'text-blue-500',
-          ].join(' ')}
+          className={`absolute h-3 w-3 md:h-4 md:w-4 text-blue-500 transition-opacity duration-200 ${
+            theme === 'dark' ? 'opacity-100' : 'opacity-0'
+          }`}
           fill="currentColor"
           viewBox="0 0 20 20"
           aria-hidden="true"
