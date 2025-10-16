@@ -60,12 +60,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
     window.open(`https://www.imdb.com/title/${movie.imdbID}/`, '_blank', 'noopener,noreferrer');
   };
 
-  // НЕ останавливаем клик на всем контенте, чтобы вся карточка была кликабельной
-  // ОСТАНАВЛИВАЕМ клик только на кнопках/контролах внутри
-  const stopPropagationOnControls: React.MouseEventHandler = (e) => {
-    e.stopPropagation();
-  };
-
   return (
     <div
       onClick={handleCardClick}
@@ -103,7 +97,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
           )}
         </div>
 
-        {/* Content (НЕ ставим onClick stopPropagation на весь блок) */}
+        {/* Content */}
         <div className="flex-1 p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
@@ -124,12 +118,21 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             </div>
           </div>
 
-          {/* ID */}
-          <div className="flex items-center mb-4">
+          {/* ID + Series meta */}
+          <div className="flex flex-wrap items-center gap-4 mb-4">
             <div className="flex items-center text-sm text-gray-500 dark:text-dark-text-tertiary">
               <span className="font-medium">ID:</span>
               <span className="ml-2 font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{movie.imdbID}</span>
             </div>
+
+            {movie.Type === 'series' && detail?.totalSeasons && detail.totalSeasons !== 'N/A' && (
+              <div className="inline-flex items-center text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/40 px-2.5 py-1 rounded-full">
+                <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
+                </svg>
+                Seasons: {detail.totalSeasons}
+              </div>
+            )}
           </div>
 
           {/* Movie Details */}
@@ -182,7 +185,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                 </div>
               )}
               
-              {/* Expandable Details (останавливаем только на контролах) */}
+              {/* Expandable Details */}
               {showDetails && (
                 <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-dark-border animate-slide-up">
                   {detail.Director && detail.Director !== 'N/A' && (
@@ -204,7 +207,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                   )}
                   
                   {detail.Plot && detail.Plot !== 'N/A' && (
-                    <div className="bg-gradient-to-r from-gray-50 to-green-50 dark:from-gray-800 dark:to-green-900/20 p-4 rounded-lg">
+                    <div className="bg-gradient-to-r from-gray-50 to_GREEN-50 dark:from-gray-800 dark:to-green-900/20 p-4 rounded-lg">
                       <span className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary flex items-center mb-2">
                         <span className="mr-1">📖</span> Plot
                       </span>
@@ -239,15 +242,9 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             </div>
           )}
 
-          {/* Show/Hide Details Button (останавливаем только на кнопке) */}
+          {/* Show/Hide Details Button */}
           {detail && (
             <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border">
-              <button
-                onClick={stopPropagationOnControls}
-                className="sr-only"
-                aria-hidden="true"
-                tabIndex={-1}
-              />
               <button
                 onClick={(e) => { e.stopPropagation(); setShowDetails(!showDetails); }}
                 className="inline-flex items-center px-4 py-2 text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 group/btn"
