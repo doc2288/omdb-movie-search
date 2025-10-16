@@ -180,16 +180,16 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg-primary transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8">
           {/* Top row with title and theme toggle */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1 pr-4">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-dark-text-primary mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 🎬 CineSearch
               </h1>
-              <p className="text-gray-600 dark:text-dark-text-secondary text-lg">
+              <p className="text-gray-600 dark:text-gray-300 text-lg">
                 Discover movies, series and episodes from the world's largest database
               </p>
             </div>
@@ -240,11 +240,11 @@ export default function Index() {
             <>
               <div className="mb-6">
                 {data.isRandomResults ? (
-                  <p className="text-gray-600 dark:text-dark-text-secondary">
+                  <p className="text-gray-600 dark:text-gray-300">
                     Showing popular movies. Use the search above to find specific movies.
                   </p>
                 ) : (
-                  <p className="text-gray-600 dark:text-dark-text-secondary">
+                  <p className="text-gray-600 dark:text-gray-300">
                     Found <span className="font-semibold text-blue-600 dark:text-blue-400">{data.totalResults.toLocaleString()}</span> results
                     {data.searchParams.s && (
                       <span> for "<span className="font-semibold text-purple-600 dark:text-purple-400">{data.searchParams.s}</span>"</span>
