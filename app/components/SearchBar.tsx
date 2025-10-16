@@ -75,7 +75,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
   const hasActiveFilters = defaultValues.type || defaultValues.y || defaultValues.genre;
 
   return (
-    <div className="bg-white dark:bg-dark-bg-card rounded-xl shadow-card-light dark:shadow-card-dark border border-gray-200 dark:border-dark-border transition-all duration-300">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-2xl border border-gray-200 dark:border-gray-700 transition-all duration-300">
       <Form
         ref={formRef}
         method="get"
@@ -85,7 +85,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
       >
         {/* Main Search Input */}
         <div className="mb-6">
-          <label htmlFor="search" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-3">
+          <label htmlFor="search" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             🔍 Search for movies, series and episodes
           </label>
           
@@ -100,7 +100,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Enter movie title, director, actor..."
-                  className="w-full px-4 py-4 pl-12 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-lg group-hover:border-gray-400 dark:group-hover:border-gray-600"
+                  className="w-full px-4 py-4 pl-12 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-lg group-hover:border-gray-400 dark:group-hover:border-gray-500"
                   disabled={isLoading}
                 />
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -146,7 +146,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Enter movie title..."
-                className="w-full px-4 py-4 pl-12 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-lg group-hover:border-gray-400 dark:group-hover:border-gray-600"
+                className="w-full px-4 py-4 pl-12 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-lg group-hover:border-gray-400 dark:group-hover:border-gray-500"
                 disabled={isLoading}
               />
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -187,7 +187,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
             type="button"
             onClick={handleToggleFilters}
             disabled={isLoading}
-            className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text-primary transition-colors group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-md p-1 disabled:opacity-50"
+            className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-md p-1 disabled:opacity-50"
           >
             <svg
               className={`mr-2 h-4 w-4 transform transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
@@ -222,7 +222,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Type Filter */}
             <div>
-              <label htmlFor="type" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2">
+              <label htmlFor="type" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 🎬 Content Type
               </label>
               <select
@@ -230,7 +230,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 name="type"
                 defaultValue={defaultValues.type || ''}
                 disabled={isLoading}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {MOVIE_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
@@ -242,7 +242,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
 
             {/* Year Filter */}
             <div>
-              <label htmlFor="year" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2">
+              <label htmlFor="year" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 📅 Release Year
               </label>
               <select
@@ -250,7 +250,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 name="y"
                 defaultValue={defaultValues.y || ''}
                 disabled={isLoading}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">✨ Any Year</option>
                 {YEARS.slice(0, 50).map((year) => (
@@ -263,7 +263,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
 
             {/* Genre Filter */}
             <div>
-              <label htmlFor="genre" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2">
+              <label htmlFor="genre" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 🎭 Genre
               </label>
               <select
@@ -271,7 +271,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 name="genre"
                 defaultValue={defaultValues.genre || ''}
                 disabled={isLoading}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">🌎 Any Genre</option>
                 {POPULAR_GENRES.map((genre) => (
@@ -284,8 +284,8 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
           </div>
 
           {/* Popular Search Suggestions */}
-          <div className="border-t border-gray-200 dark:border-dark-border pt-4">
-            <div className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-3">
+          <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
+            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
               🔥 Popular Searches
             </div>
             <div className="flex flex-wrap gap-2">
@@ -295,7 +295,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                   type="button"
                   onClick={() => handlePopularSearch(term)}
                   disabled={isLoading}
-                  className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {term}
                 </button>
