@@ -1,14 +1,14 @@
 import { useTheme } from '~/contexts/ThemeContext';
 
 const ThemeToggle = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, isHydrated } = useTheme();
 
-  // Track/knob sizes (поддержка четкой вертикали без смещения)
-  // Высота трека = 32px (h-8), внутренний отступ сверху/снизу у knob = 3px, чтобы он по центру
-  // Для md: высота 36px (h-9), отступ сверху = 3px тоже даёт центрирование
-  const trackH = 'h-8 md:h-9';
-  const trackW = 'w-14 md:w-16';
-  const knobSize = 'h-6 w-6 md:h-7 md:w-7';
+  // Don't render until hydrated to prevent flash
+  if (!isHydrated) {
+    return (
+      <div className="w-14 md:w-16 h-8 md:h-9 bg-gray-300 rounded-full animate-pulse" />
+    );
+  }
 
   return (
     <button
@@ -16,34 +16,38 @@ const ThemeToggle = () => {
       type="button"
       className={[
         'relative inline-flex items-center justify-center',
-        trackH, trackW, 'rounded-full',
+        'h-8 md:h-9 w-14 md:w-16 rounded-full',
         'bg-gray-300 dark:bg-gray-600',
-        'transition-colors duration-200 ease-out',
+        'transition-all duration-200 ease-out',
         'focus:outline-none focus:ring-2 focus:ring-blue-500',
         'ring-offset-2 dark:ring-offset-gray-900 ring-offset-white',
-        'outline-offset-0',
+        'hover:bg-gray-400 dark:hover:bg-gray-500',
+        'active:scale-95',
       ].join(' ')}
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+      aria-pressed={theme === 'dark'}
     >
       <span className="sr-only">Toggle theme</span>
 
-      {/* Центрируем knob по вертикали через translate-y-1/2, а не фиксированный top */}
+      {/* Toggle knob */}
       <div
         className={[
           'absolute left-[2px]',
           'top-1/2 -translate-y-1/2',
-          knobSize,
+          'h-6 w-6 md:h-7 md:w-7',
           'rounded-full bg-white shadow-md',
           'transition-all duration-200 ease-out',
           theme === 'dark' ? 'left-[calc(100%-2px)] -translate-x-full' : 'translate-x-0',
           'flex items-center justify-center',
         ].join(' ')}
       >
+        {/* Sun icon */}
         <svg
           className={[
-            'absolute transition-opacity duration-150',
-            theme === 'light' ? 'opacity-100' : 'opacity-0',
+            'absolute transition-all duration-200',
+            theme === 'light' ? 'opacity-100 scale-100' : 'opacity-0 scale-75',
             'h-[14px] w-[14px] md:h-[16px] md:w-[16px]',
+            'text-yellow-500',
           ].join(' ')}
           fill="currentColor"
           viewBox="0 0 20 20"
@@ -55,11 +59,14 @@ const ThemeToggle = () => {
             clipRule="evenodd"
           />
         </svg>
+        
+        {/* Moon icon */}
         <svg
           className={[
-            'absolute transition-opacity duration-150',
-            theme === 'dark' ? 'opacity-100' : 'opacity-0',
+            'absolute transition-all duration-200',
+            theme === 'dark' ? 'opacity-100 scale-100' : 'opacity-0 scale-75',
             'h-[14px] w-[14px] md:h-[16px] md:w-[16px]',
+            'text-blue-500',
           ].join(' ')}
           fill="currentColor"
           viewBox="0 0 20 20"
