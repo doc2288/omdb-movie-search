@@ -1,5 +1,5 @@
 import { Form, useSubmit } from '@remix-run/react';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import type { SearchParams } from '~/types/omdb';
 
 interface SearchBarProps {
@@ -31,43 +31,57 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
   const [searchTerm, setSearchTerm] = useState(defaultValues.s || '');
   const [isExpanded, setIsExpanded] = useState(!!defaultValues.type || !!defaultValues.y || !!defaultValues.genre);
   const submit = useSubmit();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const submitForm = useCallback((formData?: FormData) => {
+    if (formRef.current) {
+      const data = formData || new FormData(formRef.current);
+      data.set('page', '1'); // Reset to first page on new search
+      submit(data, { method: "get" });
+    }
+  }, [submit]);
+
+  const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     onSubmit?.();
-    const formData = new FormData(e.currentTarget as HTMLFormElement);
-    formData.set('page', '1'); // Reset to first page on new search
-    submit(formData, { method: "get" });
-  };
+    submitForm();
+  }, [onSubmit, submitForm]);
 
-  const handleSearchClick = () => {
-    const form = document.getElementById('search-form') as HTMLFormElement;
-    if (form) {
-      const formData = new FormData(form);
-      formData.set('page', '1');
-      submit(formData, { method: "get" });
-    }
-  };
+  const handleSearchClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    onSubmit?.();
+    submitForm();
+  }, [onSubmit, submitForm]);
 
-  const handleClearFilters = () => {
-    const form = document.getElementById('search-form') as HTMLFormElement;
-    if (form) {
-      const formData = new FormData();
-      formData.set('s', searchTerm);
-      formData.set('page', '1');
-      submit(formData, { method: "get" });
-    }
-  };
+  const handleClearFilters = useCallback(() => {
+    const formData = new FormData();
+    formData.set('s', searchTerm);
+    formData.set('page', '1');
+    submitForm(formData);
+  }, [searchTerm, submitForm]);
+
+  const handlePopularSearch = useCallback((term: string) => {
+    setSearchTerm(term);
+    const formData = new FormData();
+    formData.set('s', term);
+    formData.set('page', '1');
+    submitForm(formData);
+  }, [submitForm]);
+
+  const handleToggleFilters = useCallback(() => {
+    setIsExpanded(prev => !prev);
+  }, []);
 
   const hasActiveFilters = defaultValues.type || defaultValues.y || defaultValues.genre;
 
   return (
     <div className="bg-white dark:bg-dark-bg-card rounded-xl shadow-card-light dark:shadow-card-dark border border-gray-200 dark:border-dark-border transition-all duration-300">
       <Form
-        id="search-form"
+        ref={formRef}
         method="get"
         className="p-6"
         onSubmit={handleSubmit}
+        noValidate
       >
         {/* Main Search Input */}
         <div className="mb-6">
@@ -87,6 +101,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Enter movie title, director, actor..."
                   className="w-full px-4 py-4 pl-12 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-lg group-hover:border-gray-400 dark:group-hover:border-gray-600"
+                  disabled={isLoading}
                 />
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,13 +113,17 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
               <button
                 type="submit"
                 disabled={isLoading}
-                className="px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group/btn flex items-center gap-2 whitespace-nowrap"
+                onClick={handleSearchClick}
+                className="px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group/btn flex items-center gap-2 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 {isLoading ? (
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                  <>
+                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Searching...</span>
+                  </>
                 ) : (
                   <>
                     <span>Search</span>
@@ -128,6 +147,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Enter movie title..."
                 className="w-full px-4 py-4 pl-12 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary placeholder-gray-500 dark:placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-lg group-hover:border-gray-400 dark:group-hover:border-gray-600"
+                disabled={isLoading}
               />
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <svg className="h-5 w-5 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -139,7 +159,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group/btn flex items-center justify-center gap-2"
+              className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-xl font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group/btn flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {isLoading ? (
                 <>
@@ -165,8 +185,9 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
         <div className="flex items-center justify-between mb-4">
           <button
             type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text-primary transition-colors group"
+            onClick={handleToggleFilters}
+            disabled={isLoading}
+            className="inline-flex items-center text-sm font-medium text-gray-600 dark:text-dark-text-secondary hover:text-gray-900 dark:hover:text-dark-text-primary transition-colors group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-md p-1 disabled:opacity-50"
           >
             <svg
               className={`mr-2 h-4 w-4 transform transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
@@ -188,7 +209,8 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+              disabled={isLoading}
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded-md px-2 py-1 disabled:opacity-50"
             >
               Clear filters
             </button>
@@ -207,7 +229,8 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 id="type"
                 name="type"
                 defaultValue={defaultValues.type || ''}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {MOVIE_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
@@ -226,7 +249,8 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 id="year"
                 name="y"
                 defaultValue={defaultValues.y || ''}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">✨ Any Year</option>
                 {YEARS.slice(0, 50).map((year) => (
@@ -246,7 +270,8 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 id="genre"
                 name="genre"
                 defaultValue={defaultValues.genre || ''}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200"
+                disabled={isLoading}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-dark-border bg-white dark:bg-dark-bg-secondary text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">🌎 Any Genre</option>
                 {POPULAR_GENRES.map((genre) => (
@@ -268,17 +293,9 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 <button
                   key={term}
                   type="button"
-                  onClick={() => {
-                    setSearchTerm(term);
-                    const form = document.getElementById('search-form') as HTMLFormElement;
-                    if (form) {
-                      const formData = new FormData(form);
-                      formData.set('s', term);
-                      formData.set('page', '1');
-                      submit(formData, { method: "get" });
-                    }
-                  }}
-                  className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-gray-300 dark:border-gray-600"
+                  onClick={() => handlePopularSearch(term)}
+                  disabled={isLoading}
+                  className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {term}
                 </button>

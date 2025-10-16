@@ -6,6 +6,7 @@ interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
+  isHydrated: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -22,55 +23,91 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-function applyThemeClass(next: Theme) {
+function applyThemeClass(theme: Theme) {
+  if (typeof window === 'undefined') return;
+  
   const root = document.documentElement;
   const body = document.body;
-  root.classList.remove('dark');
-  body.classList.remove('dark');
-  if (next === 'dark') {
-    root.classList.add('dark');
-    body.classList.add('dark');
+  
+  // Remove existing theme classes
+  root.classList.remove('dark', 'light');
+  body.classList.remove('dark', 'light');
+  
+  // Add new theme class
+  root.classList.add(theme);
+  body.classList.add(theme);
+}
+
+function getSystemTheme(): Theme {
+  if (typeof window === 'undefined') return 'light';
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function getStoredTheme(): Theme | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return localStorage.getItem('theme') as Theme | null;
+  } catch {
+    return null;
+  }
+}
+
+function setStoredTheme(theme: Theme) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('theme', theme);
+  } catch {
+    // Ignore localStorage errors
   }
 }
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setThemeState] = useState<Theme>('light');
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  // Init on mount and sync with prefers-color-scheme
+  // Initialize theme on client-side only
   useEffect(() => {
-    const savedTheme = (typeof window !== 'undefined' ? localStorage.getItem('theme') : null) as Theme | null;
-    const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme: Theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    const savedTheme = getStoredTheme();
+    const systemTheme = getSystemTheme();
+    const initialTheme = savedTheme || systemTheme;
+    
     setThemeState(initialTheme);
     applyThemeClass(initialTheme);
-
-    // Optional: react to system changes
-    const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-    const listener = (e: MediaQueryListEvent) => {
-      const sys: Theme = e.matches ? 'dark' : 'light';
-      const saved = (localStorage.getItem('theme') as Theme | null);
-      if (!saved) {
-        setThemeState(sys);
-        applyThemeClass(sys);
+    setIsHydrated(true);
+    
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      const systemTheme: Theme = e.matches ? 'dark' : 'light';
+      const savedTheme = getStoredTheme();
+      
+      // Only update if no theme is saved (following system preference)
+      if (!savedTheme) {
+        setThemeState(systemTheme);
+        applyThemeClass(systemTheme);
       }
     };
-    if (mql) mql.addEventListener('change', listener);
-    return () => { if (mql) mql.removeEventListener('change', listener); };
+    
+    mediaQuery.addEventListener('change', handleChange);
+    
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
   }, []);
 
-  const setTheme = (next: Theme) => {
-    setThemeState(next);
-    localStorage.setItem('theme', next);
-    applyThemeClass(next);
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+    setStoredTheme(newTheme);
+    applyThemeClass(newTheme);
   };
 
   const toggleTheme = () => {
-    const next: Theme = theme === 'light' ? 'dark' : 'light';
-    setTheme(next);
+    const newTheme: Theme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, isHydrated }}>
       {children}
     </ThemeContext.Provider>
   );
