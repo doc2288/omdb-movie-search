@@ -8,6 +8,7 @@ import {
 } from '@remix-run/react';
 import type { LinksFunction } from '@remix-run/node';
 import stylesheet from '~/styles/tailwind.css';
+import { ThemeProvider } from '~/contexts/ThemeContext';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -35,8 +36,10 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="h-full bg-gray-50">
-        <Outlet />
+      <body className="h-full">
+        <ThemeProvider>
+          <Outlet />
+        </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
