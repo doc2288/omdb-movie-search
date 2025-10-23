@@ -114,7 +114,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
             </button>
           </div>
         </div>
-
         <div className="flex items-center justify-between mb-4">
           <button
             type="button"
@@ -136,7 +135,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
               </span>
             )}
           </button>
-          
           {hasActiveFilters && (
             <button
               type="button"
@@ -147,7 +145,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
             </button>
           )}
         </div>
-
         <div className={`space-y-4 transition-all duration-300 ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -167,7 +164,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 ))}
               </select>
             </div>
-
             <div>
               <label htmlFor="year" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2">
                 📅 Release Year
@@ -186,7 +182,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                 ))}
               </select>
             </div>
-
             <div>
               <label htmlFor="genre" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2">
                 🎭 Genre
@@ -206,7 +201,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
               </select>
             </div>
           </div>
-
           <div className="border-t border-gray-200 dark:border-dark-border pt-4">
             <div className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-3">
               🔥 Popular Searches
