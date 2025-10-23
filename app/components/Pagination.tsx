@@ -27,7 +27,7 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
   };
 
   const getVisiblePageNumbers = () => {
-    const delta = 2; // Show 2 pages on each side of current page
+    const delta = 2;
     const range = [];
     const rangeWithDots = [];
 
@@ -62,7 +62,6 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
 
   return (
     <div className="bg-white dark:bg-dark-bg-card border border-gray-200 dark:border-dark-border rounded-xl shadow-card-light dark:shadow-card-dark p-6 transition-colors duration-300">
-      {/* Mobile pagination */}
       <div className="flex justify-between items-center sm:hidden">
         <div className="text-sm text-gray-600 dark:text-dark-text-secondary">
           Page {currentPage} of {totalPages}
@@ -86,7 +85,6 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
               Previous
             </span>
           )}
-          
           {hasNextPage ? (
             <a
               href={createPageUrl(currentPage + 1)}
@@ -107,8 +105,6 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
           )}
         </div>
       </div>
-      
-      {/* Desktop pagination */}
       <div className="hidden sm:flex sm:items-center sm:justify-between">
         <div className="flex items-center space-x-4">
           <div className="flex items-center text-sm text-gray-700 dark:text-dark-text-secondary">
@@ -120,9 +116,7 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
             {totalResults.toLocaleString()} results
           </div>
         </div>
-        
         <nav className="flex items-center space-x-1" aria-label="Pagination">
-          {/* Previous button */}
           {hasPrevPage ? (
             <a
               href={createPageUrl(currentPage - 1)}
@@ -141,8 +135,6 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
               <span className="ml-1 hidden md:block">Previous</span>
             </span>
           )}
-          
-          {/* Page numbers */}
           <div className="flex">
             {getVisiblePageNumbers().map((pageNum, index) => {
               if (pageNum === '...') {
@@ -155,10 +147,8 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
                   </span>
                 );
               }
-              
               const page = pageNum as number;
               const isActive = page === currentPage;
-              
               return (
                 <a
                   key={page}
@@ -174,8 +164,6 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
               );
             })}
           </div>
-          
-          {/* Next button */}
           {hasNextPage ? (
             <a
               href={createPageUrl(currentPage + 1)}
@@ -196,8 +184,6 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
           )}
         </nav>
       </div>
-      
-      {/* Progress indicator */}
       <div className="mt-4">
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
           <div 
