@@ -6,6 +6,7 @@ interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
+  isHydrated: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -22,74 +23,51 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-// Функция для определения начальной темы
 function getInitialTheme(): Theme {
   if (typeof window === 'undefined') {
-    return 'light'; // SSR fallback
+    return 'light';
   }
-  
   try {
-    // Проверяем, не установлена ли уже тема скриптом
-    const hasInlineScript = document.documentElement.classList.contains('dark');
     const savedTheme = localStorage.getItem('theme') as Theme | null;
-    
-    if (hasInlineScript && savedTheme === 'dark') {
-      return 'dark';
-    }
-    
-    if (savedTheme) {
-      return savedTheme;
-    }
-    
-    // Проверяем системные предпочтения
+    if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme;
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     return prefersDark ? 'dark' : 'light';
-  } catch (error) {
+  } catch {
     return 'light';
   }
 }
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const [theme, setThemeState] = useState<Theme>(() => getInitialTheme());
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
+      return 'dark';
+    }
+    return getInitialTheme();
+  });
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
     try {
-      const savedTheme = localStorage.getItem('theme') as Theme | null;
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      
-      const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-      
-      // Обновляем состояние, если оно отличается
-      if (theme !== initialTheme) {
-        setThemeState(initialTheme);
-      }
-      
-      // Применяем тему к документу (на случай, если скрипт не сработал)
-      document.documentElement.classList.toggle('dark', initialTheme === 'dark');
-    } catch (error) {
-      console.warn('Error initializing theme:', error);
-    }
-  }, []);
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+    } catch {}
+  }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    
     try {
       localStorage.setItem('theme', newTheme);
-      document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    } catch (error) {
-      console.warn('Error saving theme:', error);
-    }
+    } catch {}
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, isHydrated }}>
       {children}
     </ThemeContext.Provider>
   );
