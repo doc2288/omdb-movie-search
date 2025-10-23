@@ -58,7 +58,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
   return (
     <div className="bg-white dark:bg-dark-bg-card rounded-xl shadow-card-light dark:shadow-card-dark overflow-hidden hover:shadow-lg dark:hover:shadow-dark-lg transition-all duration-300 border border-gray-200 dark:border-dark-border group">
       <div className="flex flex-col md:flex-row">
-        {/* Poster */}
         <div className="md:w-48 h-72 md:h-auto flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden">
           {getPosterUrl(movie.Poster) ? (
             <div className="relative w-full h-full group">
@@ -80,8 +79,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
             </div>
           )}
         </div>
-
-        {/* Content */}
         <div className="flex-1 p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
@@ -101,14 +98,11 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               </div>
             </div>
           </div>
-
-          {/* IMDb Link */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center text-sm text-gray-500 dark:text-dark-text-tertiary">
               <span className="font-medium">ID:</span>
               <span className="ml-2 font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">{movie.imdbID}</span>
             </div>
-            
             <a
               href={`https://www.imdb.com/title/${movie.imdbID}/`}
               target="_blank"
@@ -122,8 +116,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               </svg>
             </a>
           </div>
-
-          {/* Movie Details */}
           {detail && (
             <div className="space-y-4 border-t border-gray-200 dark:border-dark-border pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -140,7 +132,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                     </div>
                   </div>
                 )}
-                
                 {detail.Runtime && detail.Runtime !== 'N/A' && (
                   <div className="flex items-center bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg">
                     <div className="flex items-center">
@@ -153,7 +144,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                   </div>
                 )}
               </div>
-              
               {detail.Genre && detail.Genre !== 'N/A' && (
                 <div>
                   <div className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2 flex items-center">
@@ -172,8 +162,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                   </div>
                 </div>
               )}
-              
-              {/* Expandable Details */}
               {showDetails && (
                 <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-dark-border animate-slide-up">
                   {detail.Director && detail.Director !== 'N/A' && (
@@ -184,7 +172,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                       <span className="text-gray-900 dark:text-dark-text-primary font-medium">{detail.Director}</span>
                     </div>
                   )}
-                  
                   {detail.Actors && detail.Actors !== 'N/A' && (
                     <div className="bg-gradient-to-r from-gray-50 to-purple-50 dark:from-gray-800 dark:to-purple-900/20 p-4 rounded-lg">
                       <span className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary flex items-center mb-1">
@@ -193,7 +180,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                       <span className="text-gray-900 dark:text-dark-text-primary">{detail.Actors}</span>
                     </div>
                   )}
-                  
                   {detail.Plot && detail.Plot !== 'N/A' && (
                     <div className="bg-gradient-to-r from-gray-50 to-green-50 dark:from-gray-800 dark:to-green-900/20 p-4 rounded-lg">
                       <span className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary flex items-center mb-2">
@@ -202,7 +188,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                       <p className="text-gray-900 dark:text-dark-text-primary leading-relaxed">{detail.Plot}</p>
                     </div>
                   )}
-                  
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {detail.Released && detail.Released !== 'N/A' && (
                       <div className="bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg">
@@ -210,14 +195,12 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                         <span className="text-gray-900 dark:text-dark-text-primary font-medium">{detail.Released}</span>
                       </div>
                     )}
-                    
                     {detail.Country && detail.Country !== 'N/A' && (
                       <div className="bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg">
                         <span className="text-xs font-medium text-gray-500 dark:text-dark-text-tertiary block mb-1">Country</span>
                         <span className="text-gray-900 dark:text-dark-text-primary font-medium">{detail.Country}</span>
                       </div>
                     )}
-                    
                     {detail.Language && detail.Language !== 'N/A' && (
                       <div className="bg-gray-50 dark:bg-dark-bg-tertiary p-3 rounded-lg">
                         <span className="text-xs font-medium text-gray-500 dark:text-dark-text-tertiary block mb-1">Language</span>
@@ -229,8 +212,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
               )}
             </div>
           )}
-
-          {/* Show/Hide Details Button */}
           {detail && (
             <div className="mt-6 pt-4 border-t border-gray-200 dark:border-dark-border">
               <button
