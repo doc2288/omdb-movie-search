@@ -188,13 +188,11 @@ export default function Index() {
             <ThemeToggle />
           </div>
         </header>
-
         <SearchBar
           defaultValues={data.searchParams}
           onSubmit={handleFormSubmit}
           isLoading={isLoading}
         />
-
         <main className="mt-8" aria-live="polite">
           {data.error ? (
             <div className="text-center py-12">
@@ -242,7 +240,6 @@ export default function Index() {
                   </p>
                 )}
               </div>
-
               <div className="grid gap-6 md:gap-8 mb-8 animate-fade-in">
                 {data.movies.map((movie, index) => (
                   <div key={movie.imdbID} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -253,7 +250,6 @@ export default function Index() {
                   </div>
                 ))}
               </div>
-
               {!data.isRandomResults && data.totalResults > 10 && (
                 <Pagination
                   currentPage={data.currentPage}
