@@ -6,7 +6,6 @@ interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
-  isHydrated: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -23,79 +22,23 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-function getInitialTheme(): Theme {
-  // Проверяем доступность localStorage (только на клиенте)
-  if (typeof window !== 'undefined') {
-    try {
-      const savedTheme = localStorage.getItem('movie-search-theme') as Theme | null;
-      if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-        return savedTheme;
-      }
-      
-      // Проверяем системные предпочтения
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      return prefersDark ? 'dark' : 'light';
-    } catch (error) {
-      console.warn('Error accessing localStorage or matchMedia:', error);
-      return 'light';
-    }
-  }
-  
-  // На сервере возвращаем светлую тему по умолчанию
-  return 'light';
-}
-
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const [theme, setThemeState] = useState<Theme>(() => getInitialTheme());
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [theme, setThemeState] = useState<Theme>('light');
 
-  // Эффект для гидратации на клиенте
   useEffect(() => {
-    setIsHydrated(true);
+    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    // Повторно инициализируем тему после гидратации
-    const initialTheme = getInitialTheme();
+    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
     setThemeState(initialTheme);
     
-    // Применяем тему к документу
     document.documentElement.classList.toggle('dark', initialTheme === 'dark');
   }, []);
 
-  // Эффект для отслеживания изменений системных предпочтений
-  useEffect(() => {
-    if (!isHydrated) return;
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleChange = (e: MediaQueryListEvent) => {
-      // Применяем изменения только если пользователь не устанавливал тему вручную
-      const savedTheme = localStorage.getItem('movie-search-theme');
-      if (!savedTheme) {
-        const newTheme: Theme = e.matches ? 'dark' : 'light';
-        setThemeState(newTheme);
-        document.documentElement.classList.toggle('dark', newTheme === 'dark');
-      }
-    };
-
-    try {
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    } catch (error) {
-      console.warn('Error setting up media query listener:', error);
-    }
-  }, [isHydrated]);
-
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('movie-search-theme', newTheme);
-        document.documentElement.classList.toggle('dark', newTheme === 'dark');
-      } catch (error) {
-        console.warn('Error saving theme to localStorage:', error);
-      }
-    }
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
 
   const toggleTheme = () => {
@@ -103,7 +46,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, isHydrated }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
