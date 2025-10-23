@@ -8,10 +8,12 @@ import {
 } from '@remix-run/react';
 import type { LinksFunction } from '@remix-run/node';
 import stylesheet from '~/styles/tailwind.css';
+import reactPlayerStyles from '~/styles/react-player.css';
 import { ThemeProvider } from '~/contexts/ThemeContext';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
+  { rel: 'stylesheet', href: reactPlayerStyles },
   {
     rel: 'preconnect',
     href: 'https://fonts.googleapis.com',
