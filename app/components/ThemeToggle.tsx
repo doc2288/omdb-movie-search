@@ -1,8 +1,14 @@
 import { useTheme } from '~/contexts/ThemeContext';
 
 const ThemeToggle = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, isHydrated } = useTheme();
   const isDark = theme === 'dark';
+
+  // До гидратации рендерим правильное статичное положение без анимации,
+  // чтобы избежать "прыжка" при первом рендере
+  const knobClass = isHydrated
+    ? `${isDark ? 'translate-x-[24px]' : 'translate-x-0'} transition-transform duration-300 ease-in-out`
+    : `${isDark ? 'translate-x-[24px]' : 'translate-x-0'}`;
 
   return (
     <button
@@ -13,7 +19,7 @@ const ThemeToggle = () => {
       title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
       <span
-        className={`absolute top-1 left-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white shadow will-change-transform transition-transform duration-300 ease-in-out ${isDark ? 'translate-x-[24px]' : 'translate-x-0'}`}
+        className={`absolute top-1 left-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white shadow will-change-transform ${knobClass}`}
       >
         {isDark ? (
           <svg className="h-3 w-3 text-blue-400" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
