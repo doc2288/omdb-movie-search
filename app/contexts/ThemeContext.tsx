@@ -25,7 +25,6 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setThemeState] = useState<Theme>('light');
 
-  // Check for saved theme preference or default to 'light'
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as Theme | null;
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -33,7 +32,6 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
     setThemeState(initialTheme);
     
-    // Apply theme to document
     document.documentElement.classList.toggle('dark', initialTheme === 'dark');
   }, []);
 
