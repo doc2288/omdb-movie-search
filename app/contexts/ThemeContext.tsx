@@ -39,15 +39,53 @@ function getInitialTheme(): Theme {
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
-      return 'dark';
+    // Приоритет: сначала проверяем localStorage, затем DOM класс, затем системные настройки
+    if (typeof window !== 'undefined') {
+      try {
+        const savedTheme = localStorage.getItem('theme') as Theme | null;
+        if (savedTheme === 'dark' || savedTheme === 'light') {
+          return savedTheme;
+        }
+      } catch {
+        // Продолжаем к следующей проверке
+      }
+      
+      // Если нет сохранённой темы, проверяем DOM класс
+      if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
+        return 'dark';
+      }
     }
+    
     return getInitialTheme();
   });
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
+    
+    // После гидратации синхронизируем состояние с DOM и localStorage
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') as Theme | null;
+      const hasDarkClass = document.documentElement.classList.contains('dark');
+      
+      // Если есть сохранённая тема и она отличается от текущего состояния DOM
+      if (savedTheme && (savedTheme === 'dark') !== hasDarkClass) {
+        document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+        if (theme !== savedTheme) {
+          setThemeState(savedTheme);
+        }
+      }
+      // Если нет сохранённой темы, но есть класс dark в DOM
+      else if (!savedTheme && hasDarkClass && theme !== 'dark') {
+        setThemeState('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+      // Если нет сохранённой темы и нет класса dark, но theme === 'dark'
+      else if (!savedTheme && !hasDarkClass && theme === 'dark') {
+        setThemeState('light');
+        localStorage.setItem('theme', 'light');
+      }
+    }
   }, []);
 
   useEffect(() => {
