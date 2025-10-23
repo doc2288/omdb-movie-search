@@ -25,7 +25,6 @@ interface LoaderData {
   isRandomResults?: boolean;
 }
 
-// Popular queries for random results
 const POPULAR_QUERIES = [
   'Marvel', 'Batman', 'Star Wars', 'Disney', 'Action',
   'Comedy', 'Drama', 'Horror', 'Thriller', 'Animation',
@@ -47,7 +46,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let searchQuery = searchParams.s;
     let isRandomResults = false;
 
-    // If no search query, use a random popular query
     if (!searchQuery) {
       const randomIndex = Math.floor(Math.random() * POPULAR_QUERIES.length);
       searchQuery = POPULAR_QUERIES[randomIndex];
@@ -60,7 +58,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
 
     if (searchResponse.Response === 'False') {
-      // If random query didn't return results, try another one
       if (isRandomResults) {
         const fallbackIndex = Math.floor(Math.random() * POPULAR_QUERIES.length);
         const fallbackQuery = POPULAR_QUERIES[fallbackIndex];
@@ -72,7 +69,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
         if (fallbackResponse.Response === 'True') {
           const movies = fallbackResponse.Search || [];
           
-          // Load full details for all movies
           const movieDetailsPromises = movies.map(movie => 
             getMovieDetail(movie.imdbID)
           );
@@ -119,7 +115,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     let movieDetails: Record<string, OMDBMovieDetail> = {};
     let filteredMovies = movies;
 
-    // ALWAYS load full details for all movies
     const movieDetailsPromises = movies.map(movie => 
       getMovieDetail(movie.imdbID)
     );
@@ -131,7 +126,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     });
 
-    // If genre filter is applied, filter results
     if (searchParams.genre && movies.length > 0) {
       filteredMovies = movies.filter(movie => {
         const detail = movieDetails[movie.imdbID];
@@ -170,7 +164,6 @@ export default function Index() {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle loading state during navigation
   useEffect(() => {
     setIsLoading(false);
   }, [data]);
