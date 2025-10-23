@@ -8,11 +8,10 @@ if (!API_KEY) {
   throw new Error('OMDB_API_KEY is required');
 }
 
-// Search for movies with pagination
 export const searchMovies = async (params: SearchParams): Promise<OMDBSearchResponse> => {
   const searchParams = new URLSearchParams({
     apikey: API_KEY,
-    s: params.s || 'movie', // Default search term if empty
+    s: params.s || 'movie',
     page: params.page || '1',
   });
 
@@ -28,7 +27,7 @@ export const searchMovies = async (params: SearchParams): Promise<OMDBSearchResp
 
   return retryWithBackoff(async () => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
       const response = await fetch(url, {
@@ -47,9 +46,7 @@ export const searchMovies = async (params: SearchParams): Promise<OMDBSearchResp
   });
 };
 
-// Get detailed info for a single movie
 export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | null> => {
-  // Check cache first
   const cached = getCachedMovieDetail(imdbID);
   if (cached) {
     return cached;
@@ -85,7 +82,6 @@ export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | 
     });
 
     if (data.Response === 'True') {
-      // Cache the result
       setCachedMovieDetail(imdbID, data);
       return data;
     }
@@ -97,7 +93,6 @@ export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | 
   }
 };
 
-// Filter movies by genre (requires fetching details for each movie)
 export const filterMoviesByGenre = async (
   movies: Array<{ imdbID: string }>,
   targetGenre: string
