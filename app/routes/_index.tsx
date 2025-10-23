@@ -182,8 +182,8 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg-primary transition-colors duration-300">
       <div className="container mx-auto px-4 py-8">
-        <header className="mb-8 flex items-center justify-between">
-          <div>
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex-1 min-w-0">
             <h1 className="text-4xl font-bold text-gray-900 dark:text-dark-text-primary mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               🎬 CineSearch
             </h1>
@@ -191,7 +191,9 @@ export default function Index() {
               Discover movies, series and episodes from the world's largest database
             </p>
           </div>
-          <ThemeToggle />
+          <div className="flex-shrink-0 self-start sm:self-center">
+            <ThemeToggle />
+          </div>
         </header>
 
         <SearchBar
