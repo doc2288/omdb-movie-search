@@ -1,6 +1,5 @@
 import { useTheme } from '~/contexts/ThemeContext';
 
-// Final robust toggle: uses transition on knob; state derives from context
 const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
