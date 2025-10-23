@@ -35,6 +35,26 @@ export default function App() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* Инлайн-скрипт для предотвращения мигания темы */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var savedTheme = localStorage.getItem('theme');
+                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  var theme = savedTheme || (prefersDark ? 'dark' : 'light');
+                  
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  }
+                } catch (e) {
+                  // Игнорируем ошибки (например, если localStorage недоступен)
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="h-full">
         <ThemeProvider>
