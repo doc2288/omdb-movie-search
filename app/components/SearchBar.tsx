@@ -36,7 +36,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
     e.preventDefault();
     onSubmit?.();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    formData.set('page', '1'); // Reset to first page on new search
+    formData.set('page', '1');
     submit(formData, { method: "get" });
   };
 
@@ -69,7 +69,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
         className="p-6"
         onSubmit={handleSubmit}
       >
-        {/* Main Search Input */}
         <div className="mb-6">
           <label htmlFor="search" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-3">
             🔍 Search for movies, series and episodes
@@ -116,7 +115,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
           </div>
         </div>
 
-        {/* Filters Toggle */}
         <div className="flex items-center justify-between mb-4">
           <button
             type="button"
@@ -150,10 +148,8 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
           )}
         </div>
 
-        {/* Filters */}
         <div className={`space-y-4 transition-all duration-300 ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Type Filter */}
             <div>
               <label htmlFor="type" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2">
                 🎬 Content Type
@@ -172,7 +168,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
               </select>
             </div>
 
-            {/* Year Filter */}
             <div>
               <label htmlFor="year" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2">
                 📅 Release Year
@@ -192,7 +187,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
               </select>
             </div>
 
-            {/* Genre Filter */}
             <div>
               <label htmlFor="genre" className="block text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-2">
                 🎭 Genre
@@ -213,7 +207,6 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
             </div>
           </div>
 
-          {/* Popular Search Suggestions */}
           <div className="border-t border-gray-200 dark:border-dark-border pt-4">
             <div className="text-sm font-semibold text-gray-700 dark:text-dark-text-secondary mb-3">
               🔥 Popular Searches
