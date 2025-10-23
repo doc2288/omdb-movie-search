@@ -22,23 +22,66 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+// Функция для определения начальной темы
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') {
+    return 'light'; // SSR fallback
+  }
+  
+  try {
+    // Проверяем, не установлена ли уже тема скриптом
+    const hasInlineScript = document.documentElement.classList.contains('dark');
+    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    
+    if (hasInlineScript && savedTheme === 'dark') {
+      return 'dark';
+    }
+    
+    if (savedTheme) {
+      return savedTheme;
+    }
+    
+    // Проверяем системные предпочтения
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefersDark ? 'dark' : 'light';
+  } catch (error) {
+    return 'light';
+  }
+}
+
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const [theme, setThemeState] = useState<Theme>('light');
+  const [theme, setThemeState] = useState<Theme>(() => getInitialTheme());
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (typeof window === 'undefined') return;
     
-    const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
-    setThemeState(initialTheme);
-    
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+    try {
+      const savedTheme = localStorage.getItem('theme') as Theme | null;
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+      
+      // Обновляем состояние, если оно отличается
+      if (theme !== initialTheme) {
+        setThemeState(initialTheme);
+      }
+      
+      // Применяем тему к документу (на случай, если скрипт не сработал)
+      document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+    } catch (error) {
+      console.warn('Error initializing theme:', error);
+    }
   }, []);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    
+    try {
+      localStorage.setItem('theme', newTheme);
+      document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    } catch (error) {
+      console.warn('Error saving theme:', error);
+    }
   };
 
   const toggleTheme = () => {
