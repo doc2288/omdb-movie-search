@@ -40,7 +40,7 @@ const ThemeToggle = () => {
 
   const isDark = currentTheme === 'dark';
   
-  const knobTranslate = isDark ? 'translate-x-[22px]' : 'translate-x-[2px]';
+  const knobTranslate = isDark ? 'translate-x-[20px]' : 'translate-x-0';
   const knobAnim = isHydrated ? 'transition-transform duration-300 ease-in-out' : '';
 
   return (
@@ -53,7 +53,7 @@ const ThemeToggle = () => {
       disabled={!isHydrated}
     >
       <span
-        className={`absolute top-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white shadow will-change-transform ${knobTranslate} ${knobAnim}`}
+        className={`absolute top-0.5 left-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white shadow will-change-transform ${knobTranslate} ${knobAnim}`}
       >
         {isDark ? (
           <svg className="h-3 w-3 text-blue-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
