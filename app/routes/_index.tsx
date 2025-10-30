@@ -164,55 +164,39 @@ export default function Index() {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, [data]);
+  useEffect(() => { setIsLoading(false); }, [data]);
 
-  const handleFormSubmit = () => {
-    setIsLoading(true);
-  };
+  const handleFormSubmit = () => { setIsLoading(true); };
 
-  const validMovies = data.movies.filter(movie => 
-    movie.Poster && movie.Poster !== 'N/A'
-  );
+  const validMovies = data.movies.filter(movie => movie.Poster && movie.Poster !== 'N/A');
 
   return (
-    <div className="min-h-screen bg-light-bg-primary dark:bg-dark-bg-primary transition-colors duration-300">
+    <div className="min-h-screen bg-light-bg-primary text-gray-900 dark:bg-dark-bg-primary dark:text-dark-text-primary transition-colors duration-300">
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-dark-text-primary mb-2">🎬 CineSearch</h1>
+            <h1 className="text-4xl font-bold">🎬 CineSearch</h1>
             <p className="text-gray-600 dark:text-dark-text-secondary">Discover movies, series and episodes from the world's largest database</p>
           </div>
-          <div className="flex-shrink-0 self-start sm:self-center">
-            <ThemeToggle />
-          </div>
+          <div className="flex-shrink-0 self-start sm:self-center"><ThemeToggle /></div>
         </header>
-        
         <SearchBar defaultValues={data.searchParams} onSubmit={handleFormSubmit} isLoading={isLoading} />
-        
         <main className="mt-8" aria-live="polite">
           {data.error ? (
             <div className="text-center py-12">
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md mx-auto">
                 <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/40 rounded-full">
-                  <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
+                  <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
                 </div>
                 <h3 className="text-lg font-semibold text-red-800 dark:text-red-300 mb-2">Search Error</h3>
                 <p className="text-red-600 dark:text-red-400 mb-4">{data.error}</p>
-                <Form method="get" className="inline">
-                  <button type="submit" className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors">Try Again</button>
-                </Form>
+                <Form method="get" className="inline"><button type="submit" className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors">Try Again</button></Form>
               </div>
             </div>
           ) : validMovies.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-500 dark:text-dark-text-tertiary">
-                <svg className="mx-auto h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4h10M7 4l-2 16h14l-2-16" />
-                </svg>
+                <svg className="mx-auto h-12 w-12 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4h10M7 4l-2 16h14l-2-16" /></svg>
                 <h3 className="text-lg font-semibold text-gray-700 dark:text-dark-text-secondary mb-2">No Results Found</h3>
                 <p>Try changing your search terms or filters</p>
               </div>
@@ -233,9 +217,7 @@ export default function Index() {
                   </div>
                 ))}
               </div>
-              {!data.isRandomResults && data.totalResults > 10 && (
-                <Pagination currentPage={data.currentPage} totalResults={data.totalResults} searchParams={data.searchParams} />
-              )}
+              {!data.isRandomResults && data.totalResults > 10 && (<Pagination currentPage={data.currentPage} totalResults={data.totalResults} searchParams={data.searchParams} />)}
             </>
           )}
         </main>
