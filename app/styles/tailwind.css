@@ -4,6 +4,9 @@
 
 @layer base {
   html { font-family: 'Inter', system-ui, sans-serif; }
+  /* Force global background/text for both themes */
+  html, body, #root, #__remix { @apply min-h-screen bg-light-bg-primary text-gray-900 transition-colors; }
+  .dark html, .dark body, .dark #root, .dark #__remix { @apply bg-dark-bg-primary text-dark-text-primary; }
 }
 
 @layer components {
