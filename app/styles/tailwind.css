@@ -4,9 +4,9 @@
 
 @layer base {
   html { font-family: 'Inter', system-ui, sans-serif; }
-  /* Force global background/text for both themes */
   html, body, #root, #__remix { @apply min-h-screen bg-light-bg-primary text-gray-900 transition-colors; }
   .dark html, .dark body, .dark #root, .dark #__remix { @apply bg-dark-bg-primary text-dark-text-primary; }
+  html[data-initializing-theme="1"], body[data-initializing-theme="1"] { background:#0F0F23; color:#F8FAFC; }
 }
 
 @layer components {
@@ -16,15 +16,10 @@
   .animate-fade-in { animation: fadeIn 0.3s ease-out; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
 
-  /* Overlay and panel with light/dark variants */
   .card-overlay { backdrop-filter: saturate(110%) blur(2px); }
   .card-panel { box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.06); }
-
-  /* light mode */
   :root .card-overlay { background-color: rgba(255,255,255,0.7); }
   :root .card-panel { background-color: rgba(255,255,255,0.95); }
-
-  /* dark mode */
   .dark .card-overlay { background-color: rgba(17,24,39,0.8); }
   .dark .card-panel { background-color: rgba(31,41,55,0.95); box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.06); }
 
@@ -35,4 +30,5 @@
 @layer utilities {
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .no-theme-transitions, .no-theme-transitions * { transition: none !important; }
 }
