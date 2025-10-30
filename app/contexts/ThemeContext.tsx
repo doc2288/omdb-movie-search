@@ -38,53 +38,27 @@ function getInitialTheme(): Theme {
 }
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const savedTheme = localStorage.getItem('theme') as Theme | null;
-        if (savedTheme === 'dark' || savedTheme === 'light') {
-          return savedTheme;
-        }
-      } catch {
-      }
-      if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
-        return 'dark';
-      }
-    }
-    return getInitialTheme();
-  });
+  const [theme, setThemeState] = useState<Theme>('light'); // Начинаем всегда со светлой темы
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    // Этот эффект выполняется только на клиенте после гидратации
+    const actualTheme = getInitialTheme();
+    setThemeState(actualTheme);
     setIsHydrated(true);
     
+    // Синхронизируем DOM с актуальной темой
     if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('theme') as Theme | null;
-      const hasDarkClass = document.documentElement.classList.contains('dark');
-      
-      if (savedTheme && (savedTheme === 'dark') !== hasDarkClass) {
-        document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-        if (theme !== savedTheme) {
-          setThemeState(savedTheme);
-        }
-      }
-      else if (!savedTheme && hasDarkClass && theme !== 'dark') {
-        setThemeState('dark');
-        localStorage.setItem('theme', 'dark');
-      }
-      else if (!savedTheme && !hasDarkClass && theme === 'dark') {
-        setThemeState('light');
-        localStorage.setItem('theme', 'light');
-      }
+      document.documentElement.classList.toggle('dark', actualTheme === 'dark');
     }
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !isHydrated) return;
     try {
       document.documentElement.classList.toggle('dark', theme === 'dark');
     } catch {}
-  }, [theme]);
+  }, [theme, isHydrated]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
