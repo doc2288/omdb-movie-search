@@ -12,19 +12,9 @@ import { ThemeProvider } from '~/contexts/ThemeContext';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
-  {
-    rel: 'preconnect',
-    href: 'https://fonts.googleapis.com',
-  },
-  {
-    rel: 'preconnect',
-    href: 'https://fonts.gstatic.com',
-    crossOrigin: 'anonymous',
-  },
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap',
-  },
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+  { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap' },
 ];
 
 export default function App() {
@@ -35,7 +25,6 @@ export default function App() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        {}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -44,19 +33,14 @@ export default function App() {
                   var savedTheme = localStorage.getItem('theme');
                   var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                   var theme = savedTheme || (prefersDark ? 'dark' : 'light');
-                  
-                  if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                  }
-                } catch (e) {
-                  // Игнорируем ошибки (например, если localStorage недоступен)
-                }
+                  document.documentElement.classList.toggle('dark', theme === 'dark');
+                } catch (e) {}
               })();
             `,
           }}
         />
       </head>
-      <body className="h-full">
+      <body className="h-full bg-light-bg-primary text-gray-900 dark:bg-dark-bg-primary dark:text-dark-text-primary transition-colors">
         <ThemeProvider>
           <Outlet />
         </ThemeProvider>
