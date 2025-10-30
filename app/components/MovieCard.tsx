@@ -58,26 +58,28 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
   return (
     <div className="bg-white dark:bg-dark-bg-card rounded-xl shadow-card-light dark:shadow-card-dark overflow-hidden hover:shadow-lg dark:hover:shadow-dark-lg transition-all duration-300 border border-gray-200 dark:border-dark-border group">
       <div className="flex flex-col md:flex-row">
-        <div className="md:w-48 h-72 md:h-auto flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden">
-          {getPosterUrl(movie.Poster) ? (
-            <div className="relative w-full h-full group">
-              <img
-                src={getPosterUrl(movie.Poster)!}
-                alt={`${movie.Title} poster`}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                onError={handleImageError}
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+        {/* Poster container with fixed aspect ratio to avoid stretching */}
+        <div className="md:w-48 flex-shrink-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center relative overflow-hidden">
+          <div className="w-full">
+            <div className="relative w-full aspect-[2/3]">{/* 2:3 poster ratio like IMDb/TMDB */}
+              {getPosterUrl(movie.Poster) ? (
+                <img
+                  src={getPosterUrl(movie.Poster)!}
+                  alt={`${movie.Title} poster`}
+                  className="absolute inset-0 w-full h-full object-contain md:object-cover md:object-center transition-transform duration-500 group-hover:scale-105"
+                  onError={handleImageError}
+                  loading="lazy"
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 p-4">
+                  <svg className="h-16 w-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm font-medium">No Image Available</span>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="text-gray-400 dark:text-gray-500 text-center p-4">
-              <svg className="mx-auto h-16 w-16 mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span className="text-sm font-medium">No Image Available</span>
-            </div>
-          )}
+          </div>
         </div>
         <div className="flex-1 p-6">
           <div className="flex items-start justify-between mb-4">
