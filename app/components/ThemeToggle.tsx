@@ -41,6 +41,10 @@ const ThemeToggle = () => {
 
   const isDark = currentTheme === 'dark';
 
+  // Predeclare all possible classes so Tailwind JIT keeps them
+  const moveLeft = 'translate-x-0';
+  const moveRight = 'translate-x-6';
+
   return (
     <button
       type="button"
@@ -54,7 +58,7 @@ const ThemeToggle = () => {
     >
       <span
         className={`absolute top-0.5 left-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white shadow transform transition-transform duration-300 ease-in-out ${
-          isDark ? 'translate-x-6' : 'translate-x-0'
+          isDark ? moveRight : moveLeft
         }`}
       >
         {isDark ? (
