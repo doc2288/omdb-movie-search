@@ -35,7 +35,7 @@ export default function App() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        {/* Инлайн-скрипт для предотвращения мигания темы */}
+        {}
         <script
           dangerouslySetInnerHTML={{
             __html: `
