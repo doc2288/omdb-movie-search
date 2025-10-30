@@ -23,30 +23,49 @@ export default function App() {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
+        {/* PRE-INIT THEME: prevent flash on navigation */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 try {
+                  var docEl = document.documentElement;
+                  docEl.setAttribute('data-initializing-theme', '1');
                   var savedTheme = localStorage.getItem('theme');
                   var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                   var theme = savedTheme || (prefersDark ? 'dark' : 'light');
-                  document.documentElement.classList.toggle('dark', theme === 'dark');
+                  docEl.classList.toggle('dark', theme === 'dark');
+                  // remove init flag ASAP
+                  docEl.removeAttribute('data-initializing-theme');
                 } catch (e) {}
               })();
             `,
           }}
         />
+        <Meta />
+        <Links />
       </head>
-      <body className="h-full bg-light-bg-primary text-gray-900 dark:bg-dark-bg-primary dark:text-dark-text-primary transition-colors">
+      <body className="h-full bg-light-bg-primary text-gray-900 dark:bg-dark-bg-primary dark:text-dark-text-primary transition-colors no-theme-transitions">
         <ThemeProvider>
           <Outlet />
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+        {/* Remove transition-disabling class after paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                try {
+                  requestAnimationFrame(function(){
+                    document.body.classList.remove('no-theme-transitions');
+                  });
+                } catch(e){}
+              })();
+            `,
+          }}
+        />
       </body>
     </html>
   );
