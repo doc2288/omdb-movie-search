@@ -53,8 +53,8 @@ const ThemeToggle = () => {
       disabled={!isHydrated}
     >
       <span
-        className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white shadow transform transition-transform duration-300 ease-in-out ${
-          isDark ? 'translate-x-6' : 'translate-x-0.5'
+        className={`absolute top-0.5 left-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white shadow transform transition-transform duration-300 ease-in-out ${
+          isDark ? 'translate-x-6' : 'translate-x-0'
         }`}
       >
         {isDark ? (
