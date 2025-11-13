@@ -361,6 +361,26 @@ export const translations: Translations = {
     uk: 'Інформація недоступна',
     no: 'Informasjon utilgjengelig',
   },
+  'movie.watchOnline': {
+    en: 'Watch online',
+    uk: 'Дивитися онлайн',
+    no: 'Se på nett',
+  },
+  'movie.loadingStream': {
+    en: 'Loading player...',
+    uk: 'Завантаження плеєра...',
+    no: 'Laster avspilleren...',
+  },
+  'movie.noStream': {
+    en: 'Streaming links are currently unavailable.',
+    uk: 'Потокові посилання наразі недоступні.',
+    no: 'Strømmelenker er for øyeblikket utilgjengelige.',
+  },
+  'movie.streamError': {
+    en: 'Failed to load stream',
+    uk: 'Не вдалося завантажити потік',
+    no: 'Kunne ikke laste strømmen',
+  },
   
   // Pagination
   'pagination.page': {

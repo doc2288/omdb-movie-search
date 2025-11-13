@@ -707,9 +707,32 @@ export const getMovieDetailHDRezka = async (
         merged.Genre = info['жанр'] || info['жанры'] || 'N/A';
       }
 
+      if (!merged.Rated || merged.Rated === 'N/A') {
+        merged.Rated = info['рейтинг'] || 'N/A';
+      }
+
+      if (!merged.Runtime || merged.Runtime === 'N/A') {
+        merged.Runtime = info['время'] || info['длительность'] || 'N/A';
+      }
+
+      if (!merged.Director || merged.Director === 'N/A') {
+        merged.Director = info['режиссер'] || info['режиссёр'] || 'N/A';
+      }
+
+      if (!merged.Writer || merged.Writer === 'N/A') {
+        merged.Writer = info['сценарист'] || info['сценаристы'] || 'N/A';
+      }
+
+      if (!merged.Actors || merged.Actors === 'N/A') {
+        merged.Actors = info['актеры'] || info['актёры'] || 'N/A';
+      }
+
+      if (!merged.Country || merged.Country === 'N/A') {
+        merged.Country = info['страна'] || 'N/A';
+      }
+
       if (!merged.Language || merged.Language === 'N/A') {
-        const genres = info['жанр'] || info['жанры'];
-        merged.Language = genres ? normalizeWhitespace(genres) : 'N/A';
+        merged.Language = info['язык'] || 'N/A';
       }
 
       return merged;

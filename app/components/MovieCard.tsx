@@ -3,6 +3,7 @@ import { useFetcher } from '@remix-run/react';
 import type { MovieSearchItem, MovieDetail } from '~/types/movie-api';
 import type { OMDBSeriesSeason } from '~/types/omdb';
 import { useLanguage } from '~/contexts/LanguageContext';
+import VideoPlayer from '~/components/VideoPlayer';
 
 interface MovieCardProps {
   movie: MovieSearchItem;
@@ -15,6 +16,7 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const seasonFetcher = useFetcher<OMDBSeriesSeason>();
+  const streamFetcher = useFetcher<{ stream: Record<string, string> | null; error?: string }>();
 
   const handleImageError = useCallback(() => {
     setImageError(true);
@@ -72,7 +74,23 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
     }
   }, [showDetails, movie.Type, movie.imdbID, detail?.totalSeasons, seasonFetcher]);
 
+  useEffect(() => {
+    if (
+      showDetails &&
+      movie.imdbID.startsWith('hdrezka-') &&
+      streamFetcher.state === 'idle' &&
+      typeof streamFetcher.data === 'undefined'
+    ) {
+      streamFetcher.load(`/api/stream/${encodeURIComponent(movie.imdbID)}`);
+    }
+  }, [showDetails, movie.imdbID, streamFetcher]);
+
   const rating = detail?.imdbRating && detail.imdbRating !== 'N/A' ? parseFloat(detail.imdbRating) : null;
+  const streamData = streamFetcher.data?.stream ?? null;
+  const streamError = streamFetcher.data?.error;
+  const streamUrl = streamData
+    ? streamData['1080p'] || streamData['720p'] || Object.values(streamData)[0]
+    : undefined;
 
   return (
     <div 
@@ -412,6 +430,51 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                     </div>
                   )}
                 </div>
+
+                {movie.imdbID.startsWith('hdrezka-') && (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-dark-text-tertiary uppercase tracking-wide">
+                      {t('movie.watchOnline')}
+                    </h3>
+                    {streamFetcher.state === 'loading' && !streamFetcher.data && (
+                      <div className="text-sm text-gray-500 dark:text-dark-text-tertiary">
+                        {t('movie.loadingStream')}
+                      </div>
+                    )}
+                    {streamError && (
+                      <div className="text-sm text-red-500 dark:text-red-400">
+                        {t('movie.streamError')} ({streamError})
+                      </div>
+                    )}
+                    {streamUrl ? (
+                      <VideoPlayer
+                        url={streamUrl}
+                        poster={detail?.Poster && detail.Poster !== 'N/A' ? detail.Poster : undefined}
+                      />
+                    ) : (
+                      streamFetcher.state === 'idle' && streamFetcher.data && !streamFetcher.data.stream && !streamError && (
+                        <div className="text-sm text-gray-500 dark:text-dark-text-tertiary">
+                          {t('movie.noStream')}
+                        </div>
+                      )
+                    )}
+                    {streamData && Object.keys(streamData).length > 1 && (
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(streamData).map(([quality, link]) => (
+                          <a
+                            key={quality}
+                            href={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 text-xs font-semibold rounded-full bg-gray-200 dark:bg-dark-bg-secondary hover:bg-gray-300 dark:hover:bg-dark-bg-tertiary transition-colors"
+                          >
+                            {quality}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Cast */}
                 {detail?.Actors && detail.Actors !== 'N/A' && (
