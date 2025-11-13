@@ -1,5 +1,5 @@
 import { Form } from '@remix-run/react';
-import type { SearchParams } from '~/types/omdb';
+import type { SearchParams } from '~/types/movie-api';
 import { useLanguage } from '~/contexts/LanguageContext';
 
 interface PaginationProps {
@@ -8,11 +8,14 @@ interface PaginationProps {
   searchParams: SearchParams;
 }
 
-const RESULTS_PER_PAGE = 10;
+const RESULTS_PER_PAGE = 10; // For API pagination
+const CLIENT_RESULTS_PER_PAGE = 120; // For client-side pagination
 
 export default function Pagination({ currentPage, totalResults, searchParams }: PaginationProps) {
   const { t } = useLanguage();
-  const totalPages = Math.ceil(totalResults / RESULTS_PER_PAGE);
+  const hasYearRange = !!(searchParams.yearFrom || searchParams.yearTo);
+  const resultsPerPage = hasYearRange ? CLIENT_RESULTS_PER_PAGE : RESULTS_PER_PAGE;
+  const totalPages = Math.ceil(totalResults / resultsPerPage);
   const hasNextPage = currentPage < totalPages;
   const hasPrevPage = currentPage > 1;
 
@@ -22,7 +25,10 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
     if (searchParams.s) params.set('s', searchParams.s);
     if (searchParams.type) params.set('type', searchParams.type);
     if (searchParams.y) params.set('y', searchParams.y);
+    if (searchParams.yearFrom) params.set('yearFrom', searchParams.yearFrom);
+    if (searchParams.yearTo) params.set('yearTo', searchParams.yearTo);
     if (searchParams.genre) params.set('genre', searchParams.genre);
+    if (searchParams.sort) params.set('sort', searchParams.sort);
     params.set('page', page.toString());
     
     return `/?${params.toString()}`;

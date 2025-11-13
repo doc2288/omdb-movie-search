@@ -3,12 +3,13 @@ import { useLanguage } from '~/contexts/LanguageContext';
 
 const languages = [
   { code: 'en' as const, name: 'English', shortCode: 'EN' },
-  { code: 'uk' as const, name: 'Українська', shortCode: 'UK' },
+  { code: 'uk' as const, name: 'Українська', shortCode: 'UA' },
   { code: 'no' as const, name: 'Norsk', shortCode: 'NO' },
 ];
 
 const LanguageToggle = () => {
   const { language, setLanguage, isHydrated } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
 
   if (!isHydrated) {
     return (
@@ -17,8 +18,6 @@ const LanguageToggle = () => {
   }
 
   const currentLang = languages.find(lang => lang.code === language) || languages[0];
-
-  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="relative">

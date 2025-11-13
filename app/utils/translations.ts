@@ -42,6 +42,11 @@ export const translations: Translations = {
     uk: 'Розширені фільтри',
     no: 'Avanserte filtre',
   },
+  'search.filters': {
+    en: 'Filters',
+    uk: 'Фільтри',
+    no: 'Filtre',
+  },
   'search.active': {
     en: 'Active',
     uk: 'Активні',
@@ -82,10 +87,25 @@ export const translations: Translations = {
     uk: '📅 Рік випуску',
     no: '📅 Utgivelsesår',
   },
+  'search.yearFrom': {
+    en: '📅 Year From',
+    uk: '📅 Рік від',
+    no: '📅 År fra',
+  },
+  'search.yearTo': {
+    en: '📅 Year To',
+    uk: '📅 Рік до',
+    no: '📅 År til',
+  },
   'search.anyYear': {
     en: '✨ Any Year',
     uk: '✨ Будь-який рік',
     no: '✨ Hvilket som helst år',
+  },
+  'search.yearRangeError': {
+    en: 'Year "from" must be less than or equal to "to"',
+    uk: 'Рік "від" повинен бути менше або дорівнювати "до"',
+    no: 'År "fra" må være mindre enn eller lik "til"',
   },
   'search.genre': {
     en: '🎭 Genre',
@@ -96,6 +116,111 @@ export const translations: Translations = {
     en: '🌎 Any Genre',
     uk: '🌎 Будь-який жанр',
     no: '🌎 Hvilken som helst sjanger',
+  },
+  'search.genres.action': {
+    en: 'Action',
+    uk: 'Бойовик',
+    no: 'Action',
+  },
+  'search.genres.adventure': {
+    en: 'Adventure',
+    uk: 'Пригоди',
+    no: 'Eventyr',
+  },
+  'search.genres.animation': {
+    en: 'Animation',
+    uk: 'Анімація',
+    no: 'Animasjon',
+  },
+  'search.genres.biography': {
+    en: 'Biography',
+    uk: 'Біографія',
+    no: 'Biografi',
+  },
+  'search.genres.comedy': {
+    en: 'Comedy',
+    uk: 'Комедія',
+    no: 'Komedie',
+  },
+  'search.genres.crime': {
+    en: 'Crime',
+    uk: 'Кримінал',
+    no: 'Kriminal',
+  },
+  'search.genres.documentary': {
+    en: 'Documentary',
+    uk: 'Документальний',
+    no: 'Dokumentar',
+  },
+  'search.genres.drama': {
+    en: 'Drama',
+    uk: 'Драма',
+    no: 'Drama',
+  },
+  'search.genres.family': {
+    en: 'Family',
+    uk: 'Сімейний',
+    no: 'Familie',
+  },
+  'search.genres.fantasy': {
+    en: 'Fantasy',
+    uk: 'Фантастика',
+    no: 'Fantasy',
+  },
+  'search.genres.horror': {
+    en: 'Horror',
+    uk: 'Жахи',
+    no: 'Skrekk',
+  },
+  'search.genres.music': {
+    en: 'Music',
+    uk: 'Музика',
+    no: 'Musikk',
+  },
+  'search.genres.mystery': {
+    en: 'Mystery',
+    uk: 'Детектив',
+    no: 'Mysterium',
+  },
+  'search.genres.romance': {
+    en: 'Romance',
+    uk: 'Романтика',
+    no: 'Romantikk',
+  },
+  'search.genres.sciFi': {
+    en: 'Sci-Fi',
+    uk: 'Наукова фантастика',
+    no: 'Sci-Fi',
+  },
+  'search.genres.sport': {
+    en: 'Sport',
+    uk: 'Спорт',
+    no: 'Sport',
+  },
+  'search.genres.thriller': {
+    en: 'Thriller',
+    uk: 'Трилер',
+    no: 'Thriller',
+  },
+  'search.genres.war': {
+    en: 'War',
+    uk: 'Військовий',
+    no: 'Krig',
+  },
+  'search.genres.western': {
+    en: 'Western',
+    uk: 'Вестерн',
+    no: 'Western',
+  },
+  'search.searchGenre': {
+    en: 'Search genre...',
+    uk: 'Пошук жанру...',
+    no: 'Søk sjanger...',
+  },
+  'search.noGenresFound': {
+    en: 'No genres found',
+    uk: 'Жанрів не знайдено',
+    no: 'Ingen sjangere funnet',
   },
   'search.popularSearches': {
     en: '🔥 Popular Searches',
@@ -282,6 +407,48 @@ export const translations: Translations = {
     en: 'complete',
     uk: 'завершено',
     no: 'fullført',
+  },
+  
+  // Sort
+  'sort.sortBy': {
+    en: 'Sort by',
+    uk: 'Сортувати за',
+    no: 'Sorter etter',
+  },
+  'sort.default': {
+    en: 'Default',
+    uk: 'За замовчуванням',
+    no: 'Standard',
+  },
+  'sort.ratingDesc': {
+    en: 'Rating (High to Low)',
+    uk: 'Рейтинг (Високий до Низького)',
+    no: 'Rangering (Høy til Lav)',
+  },
+  'sort.ratingAsc': {
+    en: 'Rating (Low to High)',
+    uk: 'Рейтинг (Низький до Високого)',
+    no: 'Rangering (Lav til Høy)',
+  },
+  'sort.yearDesc': {
+    en: 'Year (Newest First)',
+    uk: 'Рік (Новіші спочатку)',
+    no: 'År (Nyeste først)',
+  },
+  'sort.yearAsc': {
+    en: 'Year (Oldest First)',
+    uk: 'Рік (Старіші спочатку)',
+    no: 'År (Eldste først)',
+  },
+  'sort.titleAsc': {
+    en: 'Title (A-Z)',
+    uk: 'Назва (А-Я)',
+    no: 'Tittel (A-Å)',
+  },
+  'sort.titleDesc': {
+    en: 'Title (Z-A)',
+    uk: 'Назва (Я-А)',
+    no: 'Tittel (Å-A)',
   },
 };
 

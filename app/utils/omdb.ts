@@ -1,14 +1,19 @@
-import type { OMDBSearchResponse, OMDBMovieDetail, SearchParams, OMDBSeriesSeason } from '~/types/omdb';
+import type { OMDBSearchResponse, OMDBMovieDetail, OMDBSeriesSeason } from '~/types/omdb';
+import type { SearchParams, MovieSearchResponse, MovieDetail } from '~/types/movie-api';
 import { getCachedMovieDetail, setCachedMovieDetail, retryWithBackoff } from '~/utils/cache';
 
 const OMDB_BASE_URL = 'https://www.omdbapi.com/';
 const API_KEY = process.env.OMDB_API_KEY;
 
-if (!API_KEY) {
-  throw new Error('OMDB_API_KEY is required');
-}
+export const isOMDBAvailable = (): boolean => {
+  return !!API_KEY;
+};
 
-export const searchMovies = async (params: SearchParams): Promise<OMDBSearchResponse> => {
+export const searchMovies = async (params: SearchParams): Promise<MovieSearchResponse> => {
+  if (!API_KEY) {
+    throw new Error('OMDB_API_KEY is not configured');
+  }
+
   const searchQuery = params.s?.trim() || 'movie';
   const page = params.page?.trim() || '1';
   
@@ -50,24 +55,54 @@ export const searchMovies = async (params: SearchParams): Promise<OMDBSearchResp
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Provide more informative error messages
+        if (response.status === 401) {
+          throw new Error('API key is invalid or expired. Please check your OMDb API key.');
+        } else if (response.status === 429) {
+          throw new Error('Too many requests. Please wait a moment and try again.');
+        } else {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
       }
 
-      const data: OMDBSearchResponse = await response.json();
+      const data: any = await response.json();
       
       // Validate response structure
       if (!data || typeof data.Response === 'undefined') {
         throw new Error('Invalid response from OMDb API');
       }
       
-      return data;
+      // Check for API key errors in the response
+      if (data.Response === 'False' && data.Error) {
+        const errorMessage = data.Error.toLowerCase();
+        if (
+          errorMessage.includes('invalid') ||
+          errorMessage.includes('expired') ||
+          errorMessage.includes('api key') ||
+          errorMessage.includes('request limit')
+        ) {
+          throw new Error('API key is invalid or expired. Please check your OMDb API key.');
+        }
+      }
+      
+      // Return in unified format (OMDB format is already compatible)
+      return {
+        Response: data.Response,
+        Search: data.Search,
+        totalResults: data.totalResults,
+        Error: data.Error,
+      } as MovieSearchResponse;
     } finally {
       clearTimeout(timeoutId);
     }
   });
 };
 
-export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | null> => {
+export const getMovieDetail = async (imdbID: string): Promise<MovieDetail | null> => {
+  if (!API_KEY) {
+    return null;
+  }
+
   if (!imdbID || typeof imdbID !== 'string' || imdbID.trim() === '') {
     console.warn('Invalid imdbID provided:', imdbID);
     return null;
@@ -97,17 +132,25 @@ export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | 
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          // Provide more informative error messages
+          if (response.status === 401) {
+            throw new Error('API key is invalid or expired. Please check your OMDb API key.');
+          } else if (response.status === 429) {
+            throw new Error('Too many requests. Please wait a moment and try again.');
+          } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
         }
 
-        const result: OMDBMovieDetail = await response.json();
+        const result: any = await response.json();
         
         if (result.Response === 'False') {
           console.warn(`OMDb API error for ${imdbID}:`, result.Error);
           return null;
         }
         
-        return result;
+        // Return in unified format (OMDB format is already compatible)
+        return result as MovieDetail;
       } finally {
         clearTimeout(timeoutId);
       }
@@ -126,6 +169,10 @@ export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | 
 };
 
 export const getSeriesSeason = async (imdbID: string, season: number): Promise<OMDBSeriesSeason | null> => {
+  if (!API_KEY) {
+    return null;
+  }
+
   if (!imdbID || typeof imdbID !== 'string' || imdbID.trim() === '') {
     console.warn('Invalid imdbID provided:', imdbID);
     return null;
@@ -150,7 +197,14 @@ export const getSeriesSeason = async (imdbID: string, season: number): Promise<O
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          // Provide more informative error messages
+          if (response.status === 401) {
+            throw new Error('API key is invalid or expired. Please check your OMDb API key.');
+          } else if (response.status === 429) {
+            throw new Error('Too many requests. Please wait a moment and try again.');
+          } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
         }
 
         const result: OMDBSeriesSeason = await response.json();

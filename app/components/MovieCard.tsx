@@ -1,11 +1,12 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useFetcher } from '@remix-run/react';
-import type { OMDBSearchItem, OMDBMovieDetail, OMDBSeriesSeason } from '~/types/omdb';
+import type { MovieSearchItem, MovieDetail } from '~/types/movie-api';
+import type { OMDBSeriesSeason } from '~/types/omdb';
 import { useLanguage } from '~/contexts/LanguageContext';
 
 interface MovieCardProps {
-  movie: OMDBSearchItem;
-  detail?: OMDBMovieDetail;
+  movie: MovieSearchItem;
+  detail?: MovieDetail;
 }
 
 export default function MovieCard({ movie, detail }: MovieCardProps) {
@@ -71,8 +72,6 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
     }
   }, [showDetails, movie.Type, movie.imdbID, detail?.totalSeasons, seasonFetcher]);
 
-  if (!hasValidPoster) return null;
-
   const rating = detail?.imdbRating && detail.imdbRating !== 'N/A' ? parseFloat(detail.imdbRating) : null;
 
   return (
@@ -89,15 +88,23 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
         aria-label={`View details for ${movie.Title}`} 
         onKeyDown={handleKeyDown}
       >
-        {/* Poster Image */}
-        <div className="relative w-full h-full">
-          <img 
-            src={movie.Poster} 
-            alt={`${movie.Title} (${movie.Year}) poster`} 
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-            onError={handleImageError} 
-            loading="lazy" 
-          />
+        {/* Poster Image or Placeholder */}
+        <div className="relative w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-700 dark:to-gray-800">
+          {hasValidPoster ? (
+            <img 
+              src={movie.Poster} 
+              alt={`${movie.Title} (${movie.Year}) poster`} 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+              onError={handleImageError} 
+              loading="lazy" 
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
+              <div className="text-4xl mb-2">{getTypeIcon(movie.Type)}</div>
+              <div className="text-white dark:text-gray-200 font-semibold text-sm line-clamp-2">{movie.Title}</div>
+              <div className="text-white/70 dark:text-gray-400 text-xs mt-1">{movie.Year}</div>
+            </div>
+          )}
           
           {/* Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -157,19 +164,35 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                 >
                   {t('movie.details')}
                 </button>
-                <a 
-                  href={`https://www.imdb.com/title/${movie.imdbID}/`} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  onClick={(e) => e.stopPropagation()} 
-                  className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white p-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95" 
-                  title="Открыть в IMDb"
-                  aria-label="Open on IMDb"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12s4.477 10 10 10 10-4.477 10-10zM5.5 7.5h1.5v9H5.5v-9zm2.5 0h1.5l1 3.5L11.5 7.5H13v9h-1.5V9.75L10.5 13h-1L8.5 9.75V16.5H7v-9zm6 0h1.5c1.5 0 2.5 1 2.5 2.5v4c0 1.5-1 2.5-2.5 2.5H13.5v-9zm1.5 1.5v6h.5c.5 0 1-.5 1-1v-4c0-.5-.5-1-1-1h-.5z"/>
-                  </svg>
-                </a>
+                {movie.imdbID.startsWith('hdrezka-') && detail?.Website ? (
+                  <a 
+                    href={detail.Website} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    onClick={(e) => e.stopPropagation()} 
+                    className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white p-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95" 
+                    title="Открыть на HDRezka"
+                    aria-label="Open on HDRezka"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                  </a>
+                ) : (
+                  <a 
+                    href={`https://www.imdb.com/title/${movie.imdbID}/`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    onClick={(e) => e.stopPropagation()} 
+                    className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white p-2.5 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95" 
+                    title="Открыть в IMDb"
+                    aria-label="Open on IMDb"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12s4.477 10 10 10 10-4.477 10-10zM5.5 7.5h1.5v9H5.5v-9zm2.5 0h1.5l1 3.5L11.5 7.5H13v9h-1.5V9.75L10.5 13h-1L8.5 9.75V16.5H7v-9zm6 0h1.5c1.5 0 2.5 1 2.5 2.5v4c0 1.5-1 2.5-2.5 2.5H13.5v-9zm1.5 1.5v6h.5c.5 0 1-.5 1-1v-4c0-.5-.5-1-1-1h-.5z"/>
+                    </svg>
+                  </a>
+                )}
               </div>
             </div>
           </div>
@@ -412,15 +435,34 @@ export default function MovieCard({ movie, detail }: MovieCardProps) {
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-2">
                   <a
-                    href={`https://www.imdb.com/title/${movie.imdbID}/`}
+                    href={
+                      movie.imdbID.startsWith('hdrezka-') && detail?.Website 
+                        ? detail.Website 
+                        : `https://www.imdb.com/title/${movie.imdbID}/`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 text-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                    className={`flex-1 font-semibold py-3 px-6 rounded-xl transition-all duration-200 text-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 flex items-center justify-center gap-2 ${
+                      movie.imdbID.startsWith('hdrezka-') && detail?.Website
+                        ? 'bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white'
+                        : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white'
+                    }`}
                   >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12s4.477 10 10 10 10-4.477 10-10zM5.5 7.5h1.5v9H5.5v-9zm2.5 0h1.5l1 3.5L11.5 7.5H13v9h-1.5V9.75L10.5 13h-1L8.5 9.75V16.5H7v-9zm6 0h1.5c1.5 0 2.5 1 2.5 2.5v4c0 1.5-1 2.5-2.5 2.5H13.5v-9zm1.5 1.5v6h.5c.5 0 1-.5 1-1v-4c0-.5-.5-1-1-1h-.5z"/>
-                    </svg>
-                    {t('movie.openImdb')}
+                    {movie.imdbID.startsWith('hdrezka-') && detail?.Website ? (
+                      <>
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <span>HDRezka</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12s4.477 10 10 10 10-4.477 10-10zM5.5 7.5h1.5v9H5.5v-9zm2.5 0h1.5l1 3.5L11.5 7.5H13v9h-1.5V9.75L10.5 13h-1L8.5 9.75V16.5H7v-9zm6 0h1.5c1.5 0 2.5 1 2.5 2.5v4c0 1.5-1 2.5-2.5 2.5H13.5v-9zm1.5 1.5v6h.5c.5 0 1-.5 1-1v-4c0-.5-.5-1-1-1h-.5z"/>
+                        </svg>
+                        <span>IMDb</span>
+                      </>
+                    )}
                   </a>
                   <button
                     onClick={() => setShowDetails(false)}

@@ -1,6 +1,6 @@
 import { Form, useSubmit } from '@remix-run/react';
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import type { SearchParams } from '~/types/omdb';
+import type { SearchParams } from '~/types/movie-api';
 import { useLanguage } from '~/contexts/LanguageContext';
 
 interface SearchBarProps {
@@ -13,7 +13,34 @@ const POPULAR_GENRES = [
   'Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime',
   'Documentary', 'Drama', 'Family', 'Fantasy', 'Horror', 'Music',
   'Mystery', 'Romance', 'Sci-Fi', 'Sport', 'Thriller', 'War', 'Western'
-];
+] as const;
+
+type GenreKey = typeof POPULAR_GENRES[number];
+
+const getGenreTranslationKey = (genre: string): string => {
+  const genreMap: Record<string, string> = {
+    'Action': 'search.genres.action',
+    'Adventure': 'search.genres.adventure',
+    'Animation': 'search.genres.animation',
+    'Biography': 'search.genres.biography',
+    'Comedy': 'search.genres.comedy',
+    'Crime': 'search.genres.crime',
+    'Documentary': 'search.genres.documentary',
+    'Drama': 'search.genres.drama',
+    'Family': 'search.genres.family',
+    'Fantasy': 'search.genres.fantasy',
+    'Horror': 'search.genres.horror',
+    'Music': 'search.genres.music',
+    'Mystery': 'search.genres.mystery',
+    'Romance': 'search.genres.romance',
+    'Sci-Fi': 'search.genres.sciFi',
+    'Sport': 'search.genres.sport',
+    'Thriller': 'search.genres.thriller',
+    'War': 'search.genres.war',
+    'Western': 'search.genres.western',
+  };
+  return genreMap[genre] || genre;
+};
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from(
@@ -24,22 +51,47 @@ const YEARS = Array.from(
 export default function SearchBar({ defaultValues, onSubmit, isLoading }: SearchBarProps) {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState(defaultValues.s || '');
-  const [isExpanded, setIsExpanded] = useState(!!defaultValues.type || !!defaultValues.y || !!defaultValues.genre);
-  const [yearInput, setYearInput] = useState(defaultValues.y || '');
-  const [isYearOpen, setIsYearOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(!!defaultValues.type || !!defaultValues.yearFrom || !!defaultValues.yearTo || !!defaultValues.genre);
+  const [yearFromInput, setYearFromInput] = useState(defaultValues.yearFrom || '');
+  const [yearToInput, setYearToInput] = useState(defaultValues.yearTo || '');
+  const [isYearFromOpen, setIsYearFromOpen] = useState(false);
+  const [isYearToOpen, setIsYearToOpen] = useState(false);
+  const [yearRangeError, setYearRangeError] = useState(false);
   const [genreInput, setGenreInput] = useState(defaultValues.genre || '');
   const [isGenreOpen, setIsGenreOpen] = useState(false);
   const [genreSearch, setGenreSearch] = useState('');
-  const yearRef = useRef<HTMLDivElement>(null);
+  const yearFromRef = useRef<HTMLDivElement>(null);
+  const yearToRef = useRef<HTMLDivElement>(null);
   const genreRef = useRef<HTMLDivElement>(null);
   const genreSearchInputRef = useRef<HTMLInputElement>(null);
   const submit = useSubmit();
 
   // Sync state with defaultValues changes
   useEffect(() => {
-    setYearInput(defaultValues.y || '');
+    setYearFromInput(defaultValues.yearFrom || '');
+    setYearToInput(defaultValues.yearTo || '');
     setGenreInput(defaultValues.genre || '');
-  }, [defaultValues.y, defaultValues.genre]);
+    
+    // Validate range on sync
+    if (defaultValues.yearFrom && defaultValues.yearTo) {
+      const yearFromNum = parseInt(defaultValues.yearFrom, 10);
+      const yearToNum = parseInt(defaultValues.yearTo, 10);
+      setYearRangeError(!isNaN(yearFromNum) && !isNaN(yearToNum) && yearFromNum > yearToNum);
+    } else {
+      setYearRangeError(false);
+    }
+  }, [defaultValues.yearFrom, defaultValues.yearTo, defaultValues.genre]);
+  
+  // Validate range whenever inputs change
+  useEffect(() => {
+    if (yearFromInput && yearToInput) {
+      const yearFromNum = parseInt(yearFromInput, 10);
+      const yearToNum = parseInt(yearToInput, 10);
+      setYearRangeError(!isNaN(yearFromNum) && !isNaN(yearToNum) && yearFromNum > yearToNum);
+    } else {
+      setYearRangeError(false);
+    }
+  }, [yearFromInput, yearToInput]);
 
   // Auto-focus search input when genre dropdown opens
   useEffect(() => {
@@ -84,22 +136,65 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
     }
   }, [submit]);
 
-  const handleYearChange = useCallback((year: string) => {
-    setYearInput(year);
-    setIsYearOpen(false);
-    setYearSearch('');
+  const handleYearFromChange = useCallback((year: string) => {
+    setYearFromInput(year);
+    setIsYearFromOpen(false);
     const form = document.getElementById('search-form') as HTMLFormElement;
     if (form) {
       const formData = new FormData(form);
-      if (year) {
-        formData.set('y', year);
-      } else {
-        formData.delete('y');
+      
+      // Validate range: yearFrom should not be greater than yearTo
+      if (year && yearToInput) {
+        const yearFromNum = parseInt(year, 10);
+        const yearToNum = parseInt(yearToInput, 10);
+        if (!isNaN(yearFromNum) && !isNaN(yearToNum) && yearFromNum > yearToNum) {
+          // If invalid range, clear yearTo
+          formData.delete('yearTo');
+          setYearToInput('');
+        }
       }
+      
+      if (year) {
+        formData.set('yearFrom', year);
+      } else {
+        formData.delete('yearFrom');
+      }
+      // Remove old y parameter if exists
+      formData.delete('y');
       formData.set('page', '1');
       submit(formData, { method: "get" });
     }
-  }, [submit]);
+  }, [submit, yearToInput]);
+
+  const handleYearToChange = useCallback((year: string) => {
+    setYearToInput(year);
+    setIsYearToOpen(false);
+    const form = document.getElementById('search-form') as HTMLFormElement;
+    if (form) {
+      const formData = new FormData(form);
+      
+      // Validate range: yearTo should not be less than yearFrom
+      if (year && yearFromInput) {
+        const yearFromNum = parseInt(yearFromInput, 10);
+        const yearToNum = parseInt(year, 10);
+        if (!isNaN(yearFromNum) && !isNaN(yearToNum) && yearToNum < yearFromNum) {
+          // If invalid range, clear yearFrom
+          formData.delete('yearFrom');
+          setYearFromInput('');
+        }
+      }
+      
+      if (year) {
+        formData.set('yearTo', year);
+      } else {
+        formData.delete('yearTo');
+      }
+      // Remove old y parameter if exists
+      formData.delete('y');
+      formData.set('page', '1');
+      submit(formData, { method: "get" });
+    }
+  }, [submit, yearFromInput]);
 
   const handleGenreChange = useCallback((genre: string) => {
     setGenreInput(genre);
@@ -121,8 +216,11 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (yearRef.current && !yearRef.current.contains(event.target as Node)) {
-        setIsYearOpen(false);
+      if (yearFromRef.current && !yearFromRef.current.contains(event.target as Node)) {
+        setIsYearFromOpen(false);
+      }
+      if (yearToRef.current && !yearToRef.current.contains(event.target as Node)) {
+        setIsYearToOpen(false);
       }
       if (genreRef.current && !genreRef.current.contains(event.target as Node)) {
         setIsGenreOpen(false);
@@ -136,14 +234,24 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
     };
   }, []);
 
+  const getTranslatedGenre = useCallback((genre: string): string => {
+    if (!genre) return '';
+    const genreKey = getGenreTranslationKey(genre);
+    return genreKey.startsWith('search.genres.') ? t(genreKey as any) : genre;
+  }, [t]);
+
   const filteredGenres = useMemo(() => {
     if (!genreSearch) return POPULAR_GENRES;
     const search = genreSearch.toLowerCase();
-    return POPULAR_GENRES.filter(genre => genre.toLowerCase().includes(search));
-  }, [genreSearch]);
+    return POPULAR_GENRES.filter(genre => {
+      const genreKey = getGenreTranslationKey(genre);
+      const translatedGenre = genreKey.startsWith('search.genres.') ? t(genreKey as any) : genre;
+      return genre.toLowerCase().includes(search) || translatedGenre.toLowerCase().includes(search);
+    });
+  }, [genreSearch, t]);
 
-  const hasActiveFilters = defaultValues.type || defaultValues.y || defaultValues.genre;
-  const activeFiltersCount = [defaultValues.type, defaultValues.y, defaultValues.genre].filter(Boolean).length;
+  const hasActiveFilters = defaultValues.type || defaultValues.yearFrom || defaultValues.yearTo || defaultValues.genre;
+  const activeFiltersCount = [defaultValues.type, defaultValues.yearFrom, defaultValues.yearTo, defaultValues.genre].filter(Boolean).length;
 
   return (
     <div className="bg-white dark:bg-dark-bg-card rounded-xl shadow-md dark:shadow-lg border border-gray-200 dark:border-dark-border">
@@ -222,7 +330,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
-            Filters
+            {t('search.filters')}
             {hasActiveFilters && (
               <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-600 text-white dark:bg-blue-500">
                 {activeFiltersCount}
@@ -256,6 +364,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                       key={type.value}
                       type="button"
                       onClick={() => {
+                        onSubmit?.(); // Показываем индикатор загрузки сразу
                         const form = document.getElementById('search-form') as HTMLFormElement;
                         if (form) {
                           const formData = new FormData(form);
@@ -265,7 +374,8 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                             formData.delete('type');
                           }
                           formData.set('page', '1');
-                          submit(formData, { method: "get" });
+                          // Используем navigate для более быстрого переключения
+                          submit(formData, { method: "get", replace: false });
                         }
                       }}
                       className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
@@ -282,24 +392,24 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
               <input type="hidden" name="type" defaultValue={defaultValues.type || ''} />
             </div>
 
-            {/* Year and Genre */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Year Dropdown */}
-              <div ref={yearRef} className="relative" style={{ overflow: 'visible' }}>
-                <label htmlFor="year" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  {t('search.releaseYear')}
+            {/* Year Range and Genre */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Year From Dropdown */}
+              <div ref={yearFromRef} className="relative" style={{ overflow: 'visible', marginBottom: yearRangeError && yearFromInput ? '20px' : '0' }}>
+                <label htmlFor="yearFrom" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  {t('search.yearFrom')}
                 </label>
                 <div className="relative" style={{ overflow: 'visible' }}>
                   <input
                     type="text"
-                    id="year"
-                    name="y"
-                    value={yearInput}
+                    id="yearFrom"
+                    name="yearFrom"
+                    value={yearFromInput}
                     onChange={(e) => {
                       const value = e.target.value;
                       // Allow only digits and empty string
                       if (value === '' || /^\d+$/.test(value)) {
-                        setYearInput(value);
+                        setYearFromInput(value);
                       }
                     }}
                     onBlur={(e) => {
@@ -307,67 +417,83 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                       if (value && /^\d{4}$/.test(value)) {
                         const yearNum = parseInt(value, 10);
                         if (yearNum >= 1900 && yearNum <= CURRENT_YEAR) {
-                          handleYearChange(value);
+                          // Validate range: yearFrom should not be greater than yearTo
+                          if (yearToInput) {
+                            const yearToNum = parseInt(yearToInput, 10);
+                            if (!isNaN(yearToNum) && yearNum > yearToNum) {
+                              // Invalid range, show error but don't clear
+                              setYearFromInput(value);
+                              return;
+                            }
+                          }
+                          handleYearFromChange(value);
                         } else {
-                          setYearInput('');
-                          handleYearChange('');
+                          setYearFromInput('');
+                          handleYearFromChange('');
                         }
                       } else if (!value) {
-                        handleYearChange('');
+                        handleYearFromChange('');
                       } else {
                         // Invalid format, clear it
-                        setYearInput('');
-                        handleYearChange('');
+                        setYearFromInput('');
+                        handleYearFromChange('');
                       }
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        const value = yearInput.trim();
+                        const value = yearFromInput.trim();
                         if (value && /^\d{4}$/.test(value)) {
                           const yearNum = parseInt(value, 10);
                           if (yearNum >= 1900 && yearNum <= CURRENT_YEAR) {
-                            handleYearChange(value);
+                            handleYearFromChange(value);
                           }
                         } else if (!value) {
-                          handleYearChange('');
+                          handleYearFromChange('');
                         }
-                        setIsYearOpen(false);
+                        setIsYearFromOpen(false);
                       }
                     }}
                     onFocus={() => {
-                      setIsYearOpen(true);
+                      setIsYearFromOpen(true);
                     }}
                     onClick={() => {
-                      setIsYearOpen(true);
+                      setIsYearFromOpen(true);
                     }}
                     placeholder={t('search.anyYear')}
-                    className="w-full px-3 py-2 pr-8 bg-white dark:bg-dark-bg-secondary border border-gray-300 dark:border-dark-border text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-all text-sm"
+                    className={`w-full px-3 py-2 pr-8 bg-white dark:bg-dark-bg-secondary border ${
+                      yearRangeError && yearFromInput ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-dark-border'
+                    } text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-all text-sm`}
                   />
+                  {yearRangeError && yearFromInput && (
+                    <div className="absolute -bottom-5 left-0 text-xs text-red-600 dark:text-red-400 whitespace-nowrap">
+                      {t('search.yearRangeError')}
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setIsYearOpen(!isYearOpen);
+                      setIsYearFromOpen(!isYearFromOpen);
                     }}
                     className="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                   >
-                    <svg className={`h-4 w-4 transform transition-transform ${isYearOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className={`h-4 w-4 transform transition-transform ${isYearFromOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                   </button>
-                  {isYearOpen && (
+                  {isYearFromOpen && (
                     <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark-bg-secondary border border-gray-300 dark:border-dark-border rounded-lg shadow-xl max-h-96 overflow-hidden" style={{ position: 'absolute', top: '100%', left: 0, right: 0 }}>
                       <div className="overflow-y-auto max-h-96">
                         <button
                           type="button"
                           onMouseDown={(e) => {
                             e.preventDefault();
-                            handleYearChange('');
+                            handleYearFromChange('');
                           }}
                           className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-                            !yearInput ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
+                            !yearFromInput ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
                           }`}
                         >
                           {t('search.anyYear')}
@@ -378,10 +504,135 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                             type="button"
                             onMouseDown={(e) => {
                               e.preventDefault();
-                              handleYearChange(year.toString());
+                              handleYearFromChange(year.toString());
                             }}
                             className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-                              yearInput === year.toString() ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
+                              yearFromInput === year.toString() ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
+                            {year}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Year To Dropdown */}
+              <div ref={yearToRef} className="relative" style={{ overflow: 'visible', marginBottom: yearRangeError && yearToInput ? '20px' : '0' }}>
+                <label htmlFor="yearTo" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  {t('search.yearTo')}
+                </label>
+                <div className="relative" style={{ overflow: 'visible' }}>
+                  <input
+                    type="text"
+                    id="yearTo"
+                    name="yearTo"
+                    value={yearToInput}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only digits and empty string
+                      if (value === '' || /^\d+$/.test(value)) {
+                        setYearToInput(value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value.trim();
+                      if (value && /^\d{4}$/.test(value)) {
+                        const yearNum = parseInt(value, 10);
+                        if (yearNum >= 1900 && yearNum <= CURRENT_YEAR) {
+                          // Validate range: yearTo should not be less than yearFrom
+                          if (yearFromInput) {
+                            const yearFromNum = parseInt(yearFromInput, 10);
+                            if (!isNaN(yearFromNum) && yearNum < yearFromNum) {
+                              // Invalid range, show error but don't clear
+                              setYearToInput(value);
+                              return;
+                            }
+                          }
+                          handleYearToChange(value);
+                        } else {
+                          setYearToInput('');
+                          handleYearToChange('');
+                        }
+                      } else if (!value) {
+                        handleYearToChange('');
+                      } else {
+                        // Invalid format, clear it
+                        setYearToInput('');
+                        handleYearToChange('');
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const value = yearToInput.trim();
+                        if (value && /^\d{4}$/.test(value)) {
+                          const yearNum = parseInt(value, 10);
+                          if (yearNum >= 1900 && yearNum <= CURRENT_YEAR) {
+                            handleYearToChange(value);
+                          }
+                        } else if (!value) {
+                          handleYearToChange('');
+                        }
+                        setIsYearToOpen(false);
+                      }
+                    }}
+                    onFocus={() => {
+                      setIsYearToOpen(true);
+                    }}
+                    onClick={() => {
+                      setIsYearToOpen(true);
+                    }}
+                    placeholder={t('search.anyYear')}
+                    className={`w-full px-3 py-2 pr-8 bg-white dark:bg-dark-bg-secondary border ${
+                      yearRangeError && yearToInput ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-dark-border'
+                    } text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-all text-sm`}
+                  />
+                  {yearRangeError && yearToInput && (
+                    <div className="absolute -bottom-5 left-0 text-xs text-red-600 dark:text-red-400 whitespace-nowrap">
+                      {t('search.yearRangeError')}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsYearToOpen(!isYearToOpen);
+                    }}
+                    className="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    <svg className={`h-4 w-4 transform transition-transform ${isYearToOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {isYearToOpen && (
+                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-dark-bg-secondary border border-gray-300 dark:border-dark-border rounded-lg shadow-xl max-h-96 overflow-hidden" style={{ position: 'absolute', top: '100%', left: 0, right: 0 }}>
+                      <div className="overflow-y-auto max-h-96">
+                        <button
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleYearToChange('');
+                          }}
+                          className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+                            !yearToInput ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          {t('search.anyYear')}
+                        </button>
+                        {YEARS.slice(0, 50).map((year) => (
+                          <button
+                            key={year}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleYearToChange(year.toString());
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+                              yearToInput === year.toString() ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
                             }`}
                           >
                             {year}
@@ -403,13 +654,39 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                     type="text"
                     id="genre"
                     name="genre"
-                    value={genreInput}
-                    onChange={(e) => setGenreInput(e.target.value)}
+                    value={genreInput ? getTranslatedGenre(genreInput) : ''}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      // Find matching genre by translated name
+                      const matchingGenre = POPULAR_GENRES.find(genre => {
+                        const translated = getTranslatedGenre(genre);
+                        return translated.toLowerCase() === inputValue.toLowerCase();
+                      });
+                      
+                      if (matchingGenre) {
+                        // If exact match found, use English name
+                        setGenreInput(matchingGenre);
+                      } else {
+                        // Allow free text input for custom genres
+                        setGenreInput(inputValue);
+                      }
+                    }}
                     onBlur={(e) => {
                       // Apply the genre on blur if it's not empty
                       const value = e.target.value.trim();
                       if (value) {
-                        handleGenreChange(value);
+                        // Find matching genre by translated name
+                        const matchingGenre = POPULAR_GENRES.find(genre => {
+                          const translated = getTranslatedGenre(genre);
+                          return translated.toLowerCase() === value.toLowerCase();
+                        });
+                        
+                        if (matchingGenre) {
+                          handleGenreChange(matchingGenre);
+                        } else {
+                          // If no match, use the input value as is (for custom genres)
+                          handleGenreChange(value);
+                        }
                       } else {
                         handleGenreChange('');
                       }
@@ -417,9 +694,19 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        const value = genreInput.trim();
+                        const value = (e.target as HTMLInputElement).value.trim();
                         if (value) {
-                          handleGenreChange(value);
+                          // Find matching genre by translated name
+                          const matchingGenre = POPULAR_GENRES.find(genre => {
+                            const translated = getTranslatedGenre(genre);
+                            return translated.toLowerCase() === value.toLowerCase();
+                          });
+                          
+                          if (matchingGenre) {
+                            handleGenreChange(matchingGenre);
+                          } else {
+                            handleGenreChange(value);
+                          }
                         } else {
                           handleGenreChange('');
                         }
@@ -451,6 +738,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                     placeholder={t('search.anyGenre')}
                     className="w-full px-3 py-2 pr-8 bg-white dark:bg-dark-bg-secondary border border-gray-300 dark:border-dark-border text-gray-900 dark:text-dark-text-primary rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-all text-sm cursor-pointer"
                   />
+                  <input type="hidden" name="genre" value={genreInput || ''} />
                   <button
                     type="button"
                     onClick={(e) => {
@@ -473,7 +761,7 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                           ref={genreSearchInputRef}
                           value={genreSearch}
                           onChange={(e) => setGenreSearch(e.target.value)}
-                          placeholder="Search genre..."
+                          placeholder={t('search.searchGenre')}
                           className="w-full px-2 py-1.5 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-dark-border rounded focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 text-gray-900 dark:text-dark-text-primary"
                           onKeyDown={(e) => {
                             if (e.key === 'Escape') {
@@ -496,24 +784,28 @@ export default function SearchBar({ defaultValues, onSubmit, isLoading }: Search
                         >
                           {t('search.anyGenre')}
                         </button>
-                        {filteredGenres.map((genre) => (
-                          <button
-                            key={genre}
-                            type="button"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              handleGenreChange(genre);
-                            }}
-                            className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-                              genreInput === genre ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
-                            }`}
-                          >
-                            {genre}
-                          </button>
-                        ))}
+                        {filteredGenres.map((genre) => {
+                          const genreKey = getGenreTranslationKey(genre);
+                          const translatedGenre = genreKey.startsWith('search.genres.') ? t(genreKey as any) : genre;
+                          return (
+                            <button
+                              key={genre}
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleGenreChange(genre);
+                              }}
+                              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
+                                genreInput === genre ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'
+                              }`}
+                            >
+                              {translatedGenre}
+                            </button>
+                          );
+                        })}
                         {filteredGenres.length === 0 && (
                           <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                            No genres found
+                            {t('search.noGenresFound')}
                           </div>
                         )}
                       </div>

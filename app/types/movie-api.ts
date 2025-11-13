@@ -1,4 +1,5 @@
-export interface OMDBSearchItem {
+// Unified types for different movie APIs
+export interface MovieSearchItem {
   Title: string;
   Year: string;
   imdbID: string;
@@ -6,14 +7,14 @@ export interface OMDBSearchItem {
   Poster: string;
 }
 
-export interface OMDBSearchResponse {
-  Search?: OMDBSearchItem[];
+export interface MovieSearchResponse {
+  Search?: MovieSearchItem[];
   totalResults?: string;
   Response: 'True' | 'False';
   Error?: string;
 }
 
-export interface OMDBMovieDetail {
+export interface MovieDetail {
   Title: string;
   Year: string;
   Rated: string;
@@ -46,17 +47,23 @@ export interface OMDBMovieDetail {
   Error?: string;
 }
 
-export interface OMDBSeriesSeason {
-  Title: string;
-  Season: string;
-  totalSeasons?: string;
-  Episodes?: Array<{
-    Title: string;
-    Released: string;
-    Episode: string;
-    imdbRating: string;
-    imdbID: string;
-  }>;
-  Response: 'True' | 'False';
-  Error?: string;
+export type ApiProvider = 'omdb' | 'hdrezka';
+
+export interface ApiClient {
+  name: ApiProvider;
+  searchMovies(params: SearchParams): Promise<MovieSearchResponse>;
+  getMovieDetail(imdbID: string): Promise<MovieDetail | null>;
+  isAvailable(): boolean;
 }
+
+export interface SearchParams {
+  s?: string;
+  type?: 'movie' | 'series' | 'episode';
+  y?: string;
+  yearFrom?: string;
+  yearTo?: string;
+  page?: string;
+  genre?: string;
+  sort?: string;
+}
+

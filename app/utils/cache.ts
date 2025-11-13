@@ -1,16 +1,16 @@
 import { LRUCache } from 'lru-cache';
-import type { OMDBMovieDetail } from '~/types/omdb';
+import type { MovieDetail } from '~/types/movie-api';
 
-const movieDetailsCache = new LRUCache<string, OMDBMovieDetail>({
+const movieDetailsCache = new LRUCache<string, MovieDetail>({
   max: 500,
   ttl: 10 * 60 * 1000,
 });
 
-export const getCachedMovieDetail = (imdbID: string): OMDBMovieDetail | undefined => {
+export const getCachedMovieDetail = (imdbID: string): MovieDetail | undefined => {
   return movieDetailsCache.get(imdbID);
 };
 
-export const setCachedMovieDetail = (imdbID: string, detail: OMDBMovieDetail): void => {
+export const setCachedMovieDetail = (imdbID: string, detail: MovieDetail): void => {
   movieDetailsCache.set(imdbID, detail);
 };
 

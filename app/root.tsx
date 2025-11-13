@@ -46,7 +46,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="min-h-full text-gray-900 dark:text-dark-text-primary transition-colors no-theme-transitions" style={{ minHeight: '100vh' }}>
+      <body className="min-h-full text-gray-900 dark:text-dark-text-primary transition-colors no-theme-transitions" style={{ minHeight: '100vh' }} suppressHydrationWarning>
         <LanguageProvider>
           <ThemeProvider>
             <Outlet />
