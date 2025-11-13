@@ -1,5 +1,6 @@
 import { Form } from '@remix-run/react';
 import type { SearchParams } from '~/types/omdb';
+import { useLanguage } from '~/contexts/LanguageContext';
 
 interface PaginationProps {
   currentPage: number;
@@ -10,6 +11,7 @@ interface PaginationProps {
 const RESULTS_PER_PAGE = 10;
 
 export default function Pagination({ currentPage, totalResults, searchParams }: PaginationProps) {
+  const { t } = useLanguage();
   const totalPages = Math.ceil(totalResults / RESULTS_PER_PAGE);
   const hasNextPage = currentPage < totalPages;
   const hasPrevPage = currentPage > 1;
@@ -64,7 +66,7 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
     <div className="bg-white dark:bg-dark-bg-card border border-gray-200 dark:border-dark-border rounded-xl shadow-card-light dark:shadow-card-dark p-6 transition-colors duration-300">
       <div className="flex justify-between items-center sm:hidden">
         <div className="text-sm text-gray-600 dark:text-dark-text-secondary">
-          Page {currentPage} of {totalPages}
+          {t('pagination.page')} {currentPage} {t('pagination.of')} {totalPages}
         </div>
         <div className="flex space-x-2">
           {hasPrevPage ? (
@@ -75,14 +77,14 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
               <svg className="w-4 h-4 mr-1 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Previous
+              {t('pagination.previous')}
             </a>
           ) : (
             <span className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg cursor-not-allowed">
               <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Previous
+              {t('pagination.previous')}
             </span>
           )}
           {hasNextPage ? (
@@ -90,14 +92,14 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
               href={createPageUrl(currentPage + 1)}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-dark-text-secondary bg-white dark:bg-dark-bg-secondary border border-gray-300 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
             >
-              Next
+              {t('pagination.next')}
               <svg className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </a>
           ) : (
             <span className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg cursor-not-allowed">
-              Next
+              {t('pagination.next')}
               <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -109,11 +111,11 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
         <div className="flex items-center space-x-4">
           <div className="flex items-center text-sm text-gray-700 dark:text-dark-text-secondary">
             <span className="mr-1">📄</span>
-            Showing page <span className="font-semibold text-blue-600 dark:text-blue-400 mx-1">{currentPage}</span> of{' '}
-            <span className="font-semibold text-purple-600 dark:text-purple-400 mx-1">{totalPages}</span> pages
+            {t('pagination.page')} <span className="font-semibold text-blue-600 dark:text-blue-400 mx-1">{currentPage}</span> {t('pagination.of')}{' '}
+            <span className="font-semibold text-purple-600 dark:text-purple-400 mx-1">{totalPages}</span> {t('pagination.pages')}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
-            {totalResults.toLocaleString()} results
+            {totalResults.toLocaleString()} {t('pagination.results')}
           </div>
         </div>
         <nav className="flex items-center space-x-1" aria-label="Pagination">
@@ -158,6 +160,7 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
                       : 'bg-white dark:bg-dark-bg-secondary border-gray-300 dark:border-dark-border text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-600'
                     }`}
                   aria-current={isActive ? 'page' : undefined}
+                  aria-label={`Go to page ${page}`}
                 >
                   {page}
                 </a>
@@ -192,9 +195,9 @@ export default function Pagination({ currentPage, totalResults, searchParams }: 
           ></div>
         </div>
         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-          <span>Start</span>
-          <span>{Math.round((currentPage / totalPages) * 100)}% complete</span>
-          <span>End</span>
+          <span>{t('pagination.start')}</span>
+          <span>{Math.round((currentPage / totalPages) * 100)}% {t('pagination.complete')}</span>
+          <span>{t('pagination.end')}</span>
         </div>
       </div>
     </div>

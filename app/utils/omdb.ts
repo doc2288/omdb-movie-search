@@ -1,4 +1,4 @@
-import type { OMDBSearchResponse, OMDBMovieDetail, SearchParams } from '~/types/omdb';
+import type { OMDBSearchResponse, OMDBMovieDetail, SearchParams, OMDBSeriesSeason } from '~/types/omdb';
 import { getCachedMovieDetail, setCachedMovieDetail, retryWithBackoff } from '~/utils/cache';
 
 const OMDB_BASE_URL = 'https://www.omdbapi.com/';
@@ -9,18 +9,33 @@ if (!API_KEY) {
 }
 
 export const searchMovies = async (params: SearchParams): Promise<OMDBSearchResponse> => {
+  const searchQuery = params.s?.trim() || 'movie';
+  const page = params.page?.trim() || '1';
+  
+  // Validate page number
+  const pageNum = parseInt(page, 10);
+  if (isNaN(pageNum) || pageNum < 1) {
+    throw new Error('Invalid page number');
+  }
+
   const searchParams = new URLSearchParams({
     apikey: API_KEY,
-    s: params.s || 'movie',
-    page: params.page || '1',
+    s: searchQuery,
+    page: page.toString(),
   });
 
-  if (params.type) {
+  if (params.type && ['movie', 'series', 'episode'].includes(params.type)) {
     searchParams.append('type', params.type);
   }
 
   if (params.y) {
-    searchParams.append('y', params.y);
+    const year = params.y.trim();
+    // Basic year validation (between 1888 and current year + 1)
+    const yearNum = parseInt(year, 10);
+    const currentYear = new Date().getFullYear();
+    if (!isNaN(yearNum) && yearNum >= 1888 && yearNum <= currentYear + 1) {
+      searchParams.append('y', year);
+    }
   }
 
   const url = `${OMDB_BASE_URL}?${searchParams.toString()}`;
@@ -39,6 +54,12 @@ export const searchMovies = async (params: SearchParams): Promise<OMDBSearchResp
       }
 
       const data: OMDBSearchResponse = await response.json();
+      
+      // Validate response structure
+      if (!data || typeof data.Response === 'undefined') {
+        throw new Error('Invalid response from OMDb API');
+      }
+      
       return data;
     } finally {
       clearTimeout(timeoutId);
@@ -47,6 +68,11 @@ export const searchMovies = async (params: SearchParams): Promise<OMDBSearchResp
 };
 
 export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | null> => {
+  if (!imdbID || typeof imdbID !== 'string' || imdbID.trim() === '') {
+    console.warn('Invalid imdbID provided:', imdbID);
+    return null;
+  }
+
   const cached = getCachedMovieDetail(imdbID);
   if (cached) {
     return cached;
@@ -54,7 +80,7 @@ export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | 
 
   const searchParams = new URLSearchParams({
     apikey: API_KEY,
-    i: imdbID,
+    i: imdbID.trim(),
     plot: 'short',
   });
 
@@ -75,13 +101,19 @@ export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | 
         }
 
         const result: OMDBMovieDetail = await response.json();
+        
+        if (result.Response === 'False') {
+          console.warn(`OMDb API error for ${imdbID}:`, result.Error);
+          return null;
+        }
+        
         return result;
       } finally {
         clearTimeout(timeoutId);
       }
     });
 
-    if (data.Response === 'True') {
+    if (data && data.Response === 'True') {
       setCachedMovieDetail(imdbID, data);
       return data;
     }
@@ -89,6 +121,54 @@ export const getMovieDetail = async (imdbID: string): Promise<OMDBMovieDetail | 
     return null;
   } catch (error) {
     console.error(`Failed to fetch movie detail for ${imdbID}:`, error);
+    return null;
+  }
+};
+
+export const getSeriesSeason = async (imdbID: string, season: number): Promise<OMDBSeriesSeason | null> => {
+  if (!imdbID || typeof imdbID !== 'string' || imdbID.trim() === '') {
+    console.warn('Invalid imdbID provided:', imdbID);
+    return null;
+  }
+
+  const searchParams = new URLSearchParams({
+    apikey: API_KEY,
+    i: imdbID.trim(),
+    Season: season.toString(),
+  });
+
+  const url = `${OMDB_BASE_URL}?${searchParams.toString()}`;
+
+  try {
+    const data = await retryWithBackoff(async () => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      try {
+        const response = await fetch(url, {
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result: OMDBSeriesSeason = await response.json();
+        
+        if (result.Response === 'False') {
+          console.warn(`OMDb API error for season ${season} of ${imdbID}:`, result.Error);
+          return null;
+        }
+        
+        return result;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    });
+
+    return data;
+  } catch (error) {
+    console.error(`Failed to fetch season ${season} for ${imdbID}:`, error);
     return null;
   }
 };

@@ -19,7 +19,7 @@ export const retryWithBackoff = async <T>(
   maxRetries = 3,
   baseDelay = 1000
 ): Promise<T> => {
-  let lastError: Error;
+  let lastError: Error | undefined;
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -36,5 +36,9 @@ export const retryWithBackoff = async <T>(
     }
   }
   
-  throw lastError;
+  if (lastError) {
+    throw lastError;
+  }
+  
+  throw new Error('Retry failed: unknown error');
 };

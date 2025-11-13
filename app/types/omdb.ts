@@ -41,6 +41,22 @@ export interface OMDBMovieDetail {
   BoxOffice: string;
   Production: string;
   Website: string;
+  totalSeasons?: string;
+  Response: 'True' | 'False';
+  Error?: string;
+}
+
+export interface OMDBSeriesSeason {
+  Title: string;
+  Season: string;
+  totalSeasons?: string;
+  Episodes?: Array<{
+    Title: string;
+    Released: string;
+    Episode: string;
+    imdbRating: string;
+    imdbID: string;
+  }>;
   Response: 'True' | 'False';
   Error?: string;
 }

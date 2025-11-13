@@ -9,6 +9,7 @@ import {
 import type { LinksFunction } from '@remix-run/node';
 import stylesheet from '~/styles/tailwind.css';
 import { ThemeProvider } from '~/contexts/ThemeContext';
+import { LanguageProvider } from '~/contexts/LanguageContext';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -45,10 +46,12 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="h-full bg-light-bg-primary text-gray-900 dark:bg-dark-bg-primary dark:text-dark-text-primary transition-colors no-theme-transitions">
-        <ThemeProvider>
-          <Outlet />
-        </ThemeProvider>
+      <body className="min-h-full text-gray-900 dark:text-dark-text-primary transition-colors no-theme-transitions" style={{ minHeight: '100vh' }}>
+        <LanguageProvider>
+          <ThemeProvider>
+            <Outlet />
+          </ThemeProvider>
+        </LanguageProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
