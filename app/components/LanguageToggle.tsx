@@ -5,6 +5,7 @@ const languages = [
   { code: 'en' as const, name: 'English', shortCode: 'EN' },
   { code: 'uk' as const, name: 'Українська', shortCode: 'UA' },
   { code: 'no' as const, name: 'Norsk', shortCode: 'NO' },
+  { code: 'es' as const, name: 'Español', shortCode: 'ES' },
 ];
 
 const LanguageToggle = () => {

@@ -29,13 +29,14 @@ function getInitialLanguage(): Language {
   }
   try {
     const savedLanguage = localStorage.getItem('language') as Language | null;
-    if (savedLanguage === 'en' || savedLanguage === 'uk' || savedLanguage === 'no') {
+    if (savedLanguage === 'en' || savedLanguage === 'uk' || savedLanguage === 'no' || savedLanguage === 'es') {
       return savedLanguage;
     }
     // Try to detect browser language
     const browserLang = navigator.language.split('-')[0];
     if (browserLang === 'uk') return 'uk';
     if (browserLang === 'no' || browserLang === 'nb' || browserLang === 'nn') return 'no';
+    if (browserLang === 'es') return 'es';
     return 'en';
   } catch {
     return 'en';
